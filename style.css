@@ -204,14 +204,14 @@ p { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); }
   justify-content: center;
 }
 .nav-logo img {
-  height: 160px;
+  height: 180px;
   width: auto;
   filter: none;
   transition: filter var(--transition), height var(--transition);
 }
 #site-header.scrolled .nav-logo img {
   filter: none;
-  height: 140px;
+  height: 160px;
 }
 
 .cart-btn {
