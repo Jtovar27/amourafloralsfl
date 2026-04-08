@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop — Amoura Florals</title>
+  <meta name="description" content="Browse Amoura Florals' collection of handcrafted bouquets, centerpieces, bridal arrangements, and gifts." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="inner-page">
+
+  <!-- NAV -->
+  <header id="site-header" class="scrolled">
+    <nav class="nav-container">
+      <div class="nav-left">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link active">Shop</a>
+      </div>
+      <a href="index.html" class="nav-logo">
+        <img src="logo.png" alt="Amoura Florals" />
+      </a>
+      <div class="nav-right">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="faq.html" class="nav-link">FAQ</a>
+        <button class="cart-btn" id="cart-toggle" aria-label="Open cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- PAGE BANNER -->
+  <section class="page-banner">
+    <div class="page-banner-bg" style="background-image:url('https://images.unsplash.com/photo-1490750967868-88df5691240e?auto=format&fit=crop&w=1600&q=80')"></div>
+    <div class="page-banner-overlay"></div>
+    <div class="page-banner-content">
+      <span class="section-label" style="color:var(--peach)">The Collection</span>
+      <h1 class="page-banner-title">Shop Arrangements</h1>
+      <p>From everyday blooms to once-in-a-lifetime bouquets</p>
+    </div>
+  </section>
+
+  <!-- CATALOG -->
+  <section class="catalog-section">
+    <div class="catalog-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="bouquets">Bouquets</button>
+      <button class="filter-btn" data-filter="centerpieces">Centerpieces</button>
+      <button class="filter-btn" data-filter="weddings">Weddings</button>
+      <button class="filter-btn" data-filter="gifts">Gifts &amp; Wrapped</button>
+    </div>
+
+    <div class="catalog-grid" id="catalog-grid">
+
+      <div class="product-card" data-category="weddings">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" alt="Blushing Bride Bridal Bouquet" loading="lazy" />
+          <button class="quick-add" data-id="1" data-name="Blushing Bride Bridal Bouquet" data-price="245">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Weddings</p>
+          <h3 class="product-name">Blushing Bride Bridal Bouquet</h3>
+          <p class="product-price">$245</p>
+        </div>
+      </div>
+
+      <div class="product-card" data-category="bouquets">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1561181286-d3f8d8aa7d73?auto=format&fit=crop&w=600&q=80" alt="Garden Romance Bouquet" loading="lazy" />
+          <button class="quick-add" data-id="2" data-name="Garden Romance Bouquet" data-price="85">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Bouquets</p>
+          <h3 class="product-name">Garden Romance Bouquet</h3>
+          <p class="product-price">$85</p>
+        </div>
+      </div>
+
+      <div class="product-card" data-category="centerpieces">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1523693916253-7a76c6a3e0e2?auto=format&fit=crop&w=600&q=80" alt="Sage & Bloom Centerpiece" loading="lazy" />
+          <button class="quick-add" data-id="3" data-name="Sage & Bloom Centerpiece" data-price="155">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Centerpieces</p>
+          <h3 class="product-name">Sage &amp; Bloom Centerpiece</h3>
+          <p class="product-price">$155</p>
+        </div>
+      </div>
+
+      <div class="product-card" data-category="bouquets">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=600&q=80" alt="Peach Petal Dreams" loading="lazy" />
+          <button class="quick-add" data-id="4" data-name="Peach Petal Dreams" data-price="75">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Bouquets</p>
+          <h3 class="product-name">Peach Petal Dreams</h3>
+          <p class="product-price">$75</p>
+        </div>
+      </div>
+
+      <div class="product-card" data-category="weddings">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=600&q=80" alt="Romantic Ceremony Arch" loading="lazy" />
+          <button class="quick-add" data-id="5" data-name="Romantic Ceremony Arch" data-price="580">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Weddings</p>
+          <h3 class="product-name">Romantic Ceremony Arch</h3>
+          <p class="product-price">$580</p>
+        </div>
+      </div>
+
+      <div class="product-card" data-category="gifts">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=80" alt="Sun-Kissed Wrapped Blooms" loading="lazy" />
+          <button class="quick-add" data-id="6" data-name="Sun-Kissed Wrapped Blooms" data-price="65">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Gifts &amp; Wrapped</p>
+          <h3 class="product-name">Sun-Kissed Wrapped Blooms</h3>
+          <p class="product-price">$65</p>
+        </div>
+      </div>
+
+      <div class="product-card" data-category="centerpieces">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=80" alt="Lush Greenery Centerpiece" loading="lazy" />
+          <button class="quick-add" data-id="7" data-name="Lush Greenery Centerpiece" data-price="120">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Centerpieces</p>
+          <h3 class="product-name">Lush Greenery Centerpiece</h3>
+          <p class="product-price">$120</p>
+        </div>
+      </div>
+
+      <div class="product-card" data-category="gifts">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1453906971074-ce568cccbc63?auto=format&fit=crop&w=600&q=80" alt="Wildflower Love Bundle" loading="lazy" />
+          <button class="quick-add" data-id="8" data-name="Wildflower Love Bundle" data-price="95">Add to Cart</button>
+        </div>
+        <div class="product-info">
+          <p class="product-category">Gifts &amp; Wrapped</p>
+          <h3 class="product-name">Wildflower Love Bundle</h3>
+          <p class="product-price">$95</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="catalog-cta">
+      <p>Looking for something custom? We love creating one-of-a-kind arrangements.</p>
+      <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="btn btn-sage">DM Us on Instagram</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <img src="logo.png" alt="Amoura Florals" />
+        <p>Handcrafted floral arrangements<br />in South Florida, made with love.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="shop.html">Shop</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="mailto:hello@amouraflorals.com">hello@amouraflorals.com</a></li>
+        </ul>
+        <p class="footer-hours">Mon – Sat: 9am – 6pm<br />South Florida</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 Amoura Florals. All rights reserved. Made with love in South Florida.</p>
+    </div>
+  </footer>
+
+  <!-- CART -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-sidebar" id="cart-sidebar" aria-label="Shopping cart">
+    <div class="cart-header">
+      <h2>Your Arrangement</h2>
+      <button class="cart-close" id="cart-close" aria-label="Close cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-empty" id="cart-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p>Your cart is empty</p>
+      <a href="shop.html" class="btn btn-outline">Browse Arrangements</a>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-subtotal">
+        <span>Subtotal</span>
+        <span id="cart-total">$0</span>
+      </div>
+      <p class="cart-note">Shipping &amp; delivery calculated at checkout</p>
+      <button class="btn btn-sage btn-full" id="checkout-btn">Proceed to Checkout</button>
+    </div>
+  </aside>
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

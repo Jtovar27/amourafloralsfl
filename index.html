@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amoura Florals — Handcrafted Floral Arrangements in South Florida</title>
+  <meta name="description" content="Amoura Florals creates lush, romantic floral arrangements for weddings, events, and everyday moments in South Florida." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header id="site-header">
+    <nav class="nav-container">
+      <div class="nav-left">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+      </div>
+      <a href="index.html" class="nav-logo">
+        <img src="logo.png" alt="Amoura Florals" />
+      </a>
+      <div class="nav-right">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="faq.html" class="nav-link">FAQ</a>
+        <button class="cart-btn" id="cart-toggle" aria-label="Open cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">South Florida's Floral Studio</p>
+      <h1 class="hero-title">Where Every<br /><em>Petal Tells</em><br />Your Story</h1>
+      <p class="hero-sub">Handcrafted arrangements for weddings, events &amp; everyday moments of beauty</p>
+      <a href="shop.html" class="btn btn-hero">Explore the Collection</a>
+    </div>
+    <a href="shop.html" class="hero-scroll" aria-label="Scroll down">
+      <svg width="20" height="30" viewBox="0 0 20 30">
+        <rect x="1" y="1" width="18" height="28" rx="9" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <circle cx="10" cy="8" r="2" fill="currentColor">
+          <animate attributeName="cy" values="8;18;8" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    </a>
+  </section>
+
+  <!-- VALUES STRIP -->
+  <section class="values-strip">
+    <div class="values-grid">
+      <div class="value-item">
+        <span class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <h3>Custom &amp; Handcrafted</h3>
+        <p>Every arrangement is made by hand, tailored to your vision and occasion.</p>
+      </div>
+      <div class="value-item">
+        <span class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </span>
+        <h3>Fresh &amp; Seasonal</h3>
+        <p>We source the freshest blooms weekly to ensure quality in every stem.</p>
+      </div>
+      <div class="value-item">
+        <span class="value-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </span>
+        <h3>Weddings &amp; Events</h3>
+        <p>From intimate ceremonies to grand receptions — we do it all with love.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED INTRO -->
+  <section class="featured-intro">
+    <div class="featured-inner">
+      <div class="featured-text">
+        <span class="section-label">The Amoura Way</span>
+        <h2 class="section-title">Florals That Feel Like a Feeling</h2>
+        <p>At Amoura Florals, we believe flowers are more than decoration — they are emotion made visible. Based in South Florida, we pour intention into every stem, every texture, every color, creating arrangements that speak even when words fall short.</p>
+        <a href="shop.html" class="btn btn-outline">Shop Now</a>
+      </div>
+      <div class="featured-images">
+        <div class="fi-main">
+          <img src="https://images.unsplash.com/photo-1487530811015-780f5f8b5de4?auto=format&fit=crop&w=800&q=80" alt="Lush floral arrangement" loading="lazy" />
+        </div>
+        <div class="fi-secondary">
+          <img src="https://images.unsplash.com/photo-1490750967868-88df5691240e?auto=format&fit=crop&w=400&q=80" alt="Bridal bouquet" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section">
+    <div class="section-header">
+      <span class="section-label">Kind Words</span>
+      <h2 class="section-title">What Our Clients Say</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"The bridal bouquet Amoura created for my wedding day was absolutely breathtaking. Every single guest asked who did my florals. I could not have imagined a more perfect arrangement."</p>
+        <span class="testimonial-author">— Valentina R., Bride</span>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"I ordered a birthday arrangement for my mom and she literally cried. The colors, the freshness, the packaging — everything was perfect. Amoura is my go-to for every occasion now."</p>
+        <span class="testimonial-author">— Maria G., Miami FL</span>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"Our event centerpieces were beyond what we could have hoped for. Amoura understood our vision immediately and elevated it. Professional, talented, and truly passionate about their craft."</p>
+        <span class="testimonial-author">— Diana M., Event Planner</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTAGRAM CTA -->
+  <section class="instagram-section">
+    <div class="instagram-inner">
+      <h2 class="instagram-title">Follow Along<br /><em>@amourafloralsfl</em></h2>
+      <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="btn btn-peach">View on Instagram</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <img src="logo.png" alt="Amoura Florals" />
+        <p>Handcrafted floral arrangements<br />in South Florida, made with love.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="shop.html">Shop</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="mailto:hello@amouraflorals.com">hello@amouraflorals.com</a></li>
+        </ul>
+        <p class="footer-hours">Mon – Sat: 9am – 6pm<br />South Florida</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 Amoura Florals. All rights reserved. Made with love in South Florida.</p>
+    </div>
+  </footer>
+
+  <!-- CART -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-sidebar" id="cart-sidebar" aria-label="Shopping cart">
+    <div class="cart-header">
+      <h2>Your Arrangement</h2>
+      <button class="cart-close" id="cart-close" aria-label="Close cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-empty" id="cart-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p>Your cart is empty</p>
+      <a href="shop.html" class="btn btn-outline">Browse Arrangements</a>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-subtotal">
+        <span>Subtotal</span>
+        <span id="cart-total">$0</span>
+      </div>
+      <p class="cart-note">Shipping &amp; delivery calculated at checkout</p>
+      <button class="btn btn-sage btn-full" id="checkout-btn">Proceed to Checkout</button>
+    </div>
+  </aside>
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
