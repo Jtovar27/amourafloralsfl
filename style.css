@@ -260,28 +260,16 @@ p { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); }
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: #fff;
   padding-top: 140px; /* account for logo overflow on sage nav */
 }
 
 .hero-bg {
-  position: absolute;
-  inset: 0;
-  background-image: url('https://images.unsplash.com/photo-1487530811015-780f5f8b5de4?auto=format&fit=crop&w=1920&q=85');
-  background-size: cover;
-  background-position: center 30%;
-  transform: scale(1.05);
-  transition: transform 0.1s linear;
+  display: none;
 }
 
 .hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(44, 41, 38, 0.55) 0%,
-    rgba(129, 130, 99, 0.3) 60%,
-    rgba(44, 41, 38, 0.45) 100%
-  );
+  display: none;
 }
 
 .hero-content {
@@ -302,21 +290,25 @@ p { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); }
   font-size: 0.72rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--peach);
+  color: var(--sage);
   font-family: var(--ff-sans);
   font-weight: 400;
   margin-bottom: 1.5rem;
 }
 
 .hero-title {
-  color: #fff;
+  color: #2c2a26;
   font-weight: 300;
   margin-bottom: 1.5rem;
-  text-shadow: 0 2px 40px rgba(0,0,0,0.2);
+  text-shadow: none;
+}
+
+.hero-title em {
+  color: var(--sage);
 }
 
 .hero-sub {
-  color: rgba(255,255,255,0.85);
+  color: #6b6760;
   font-size: clamp(0.95rem, 1.4vw, 1.1rem);
   font-family: var(--ff-sans);
   font-weight: 300;
@@ -332,10 +324,10 @@ p { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); }
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
-  color: rgba(239,215,207,0.6);
+  color: var(--sage-light);
   transition: color var(--transition);
 }
-.hero-scroll:hover { color: var(--peach); }
+.hero-scroll:hover { color: var(--sage); }
 
 /* ───────────────────────────────────────
    VALUES STRIP
@@ -686,25 +678,31 @@ p { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); }
 }
 
 /* ───────────────────────────────────────
-   TESTIMONIALS
+   TESTIMONIALS CAROUSEL
 ─────────────────────────────────────── */
 .testimonials-section {
   background: var(--peach);
   padding: 6rem var(--gutter);
 }
 
-.testimonials-grid {
-  max-width: var(--max-w);
+.testimonials-carousel {
+  max-width: 720px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
 }
 
 .testimonial-card {
   background: var(--warm-white);
   padding: 2.5rem;
-  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
 }
 
 .testimonial-stars {
@@ -729,6 +727,29 @@ p { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); }
   text-transform: uppercase;
   color: var(--sage);
   font-weight: 500;
+}
+
+.testimonials-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 2rem;
+}
+
+.t-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(129, 130, 99, 0.3);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.t-dot.active {
+  background: var(--sage);
+  transform: scale(1.3);
 }
 
 /* ───────────────────────────────────────

@@ -277,8 +277,12 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 
 document.querySelectorAll(
-  '.product-card, .value-item, .testimonial-card, .faq-item, .about-text, .about-images, .featured-text, .featured-images'
+  '.product-card, .value-item, .faq-item, .about-text, .about-images, .featured-text, .featured-images'
 ).forEach(el => { el.classList.add('observe'); observer.observe(el); });
+
+// Fade the entire carousel in as one unit
+const carouselEl = document.querySelector('.testimonials-carousel');
+if (carouselEl) { carouselEl.classList.add('observe'); observer.observe(carouselEl); }
 
 // Inject observe CSS
 const observeStyle = document.createElement('style');
@@ -305,6 +309,54 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
     }
   });
 });
+
+// ── Testimonials carousel ──────────────────
+(function () {
+  const track = document.querySelector('.testimonials-track');
+  if (!track) return;
+
+  const cards = track.querySelectorAll('.testimonial-card');
+  const dots  = document.querySelectorAll('.t-dot');
+  let current = 0;
+  let timer;
+  const INTERVAL = 4500;
+
+  function goTo(index) {
+    cards[current].setAttribute('aria-hidden', 'true');
+    dots[current].classList.remove('active');
+    dots[current].setAttribute('aria-selected', 'false');
+
+    current = (index + cards.length) % cards.length;
+
+    track.style.transform = `translateX(-${current * 100}%)`;
+    cards[current].setAttribute('aria-hidden', 'false');
+    dots[current].classList.add('active');
+    dots[current].setAttribute('aria-selected', 'true');
+  }
+
+  function startAuto() {
+    timer = setInterval(() => goTo(current + 1), INTERVAL);
+  }
+
+  function resetAuto() {
+    clearInterval(timer);
+    startAuto();
+  }
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => { goTo(i); resetAuto(); });
+  });
+
+  // Touch/swipe support
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) { goTo(dx < 0 ? current + 1 : current - 1); resetAuto(); }
+  });
+
+  startAuto();
+})();
 
 // ── Init ───────────────────────────────────
 renderCart();
