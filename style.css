@@ -370,6 +370,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   top: 0; left: 0; right: 0;
   z-index: 200;
   padding: 0;
+  overflow: visible;
   transition: background 0.5s var(--ease-out), padding 0.4s var(--ease-out),
               backdrop-filter 0.5s ease, box-shadow 0.4s ease;
 }
@@ -413,9 +414,12 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 .nav-left, .nav-right {
   display: flex;
   align-items: center;
-  gap: 2.8rem;
+  gap: 2.2rem;
 }
-.nav-right { justify-content: flex-end; }
+.nav-right {
+  justify-content: flex-end;
+  gap: 1.8rem;
+}
 
 .nav-link {
   font-size: 0.7rem;
@@ -449,13 +453,13 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 }
 
 .nav-logo img {
-  height: 90px;
+  height: 110px;
   width: auto;
   transition: filter 0.4s ease, opacity 0.4s ease, height 0.4s var(--ease-out);
   filter: brightness(0) invert(1);
 }
 
-#site-header.scrolled .nav-logo img { height: 72px; }
+#site-header.scrolled .nav-logo img { height: 86px; }
 .inner-page #site-header .nav-logo img { filter: brightness(0) invert(1); }
 
 /* Force white logo when not scrolled (over dark hero) */
@@ -1861,7 +1865,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 @media (max-width: 768px) {
   :root { --section-py: clamp(3rem, 8vw, 5rem); }
 
-  .nav-left a.nav-link:not(.hamburger ~ a),
+  .nav-left a.nav-link,
   .nav-right a.nav-link {
     display: none;
   }
