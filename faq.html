@@ -12,6 +12,10 @@
 </head>
 <body class="inner-page">
 
+  <!-- CUSTOM CURSOR -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
   <!-- NAV -->
   <header id="site-header" class="scrolled">
     <nav class="nav-container">
@@ -39,10 +43,10 @@
 
   <!-- PAGE BANNER -->
   <section class="page-banner">
-    <div class="page-banner-bg" style="background-image:url('https://images.unsplash.com/photo-1487530811015-780f5f8b5de4?auto=format&fit=crop&w=1600&q=80')"></div>
+    <div class="page-banner-bg" style="background-image:url('https://images.unsplash.com/photo-1487530811015-780f5f8b5de4?auto=format&fit=crop&w=1800&q=85')"></div>
     <div class="page-banner-overlay"></div>
     <div class="page-banner-content">
-      <span class="section-label" style="color:var(--peach)">Got Questions?</span>
+      <span class="section-label" style="color:var(--peach); padding-left:0;">Got Questions?</span>
       <h1 class="page-banner-title">Frequently Asked</h1>
       <p>Everything you need to know before you order</p>
     </div>
@@ -52,7 +56,7 @@
   <section class="faq-section">
     <div class="faq-list">
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>Do you offer same-day or next-day delivery?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -62,7 +66,7 @@
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>How do I place a custom order?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -72,7 +76,7 @@
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>What areas do you serve?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -82,7 +86,7 @@
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>Do you do wedding florals and events?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -92,7 +96,7 @@
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>What is your cancellation or refund policy?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -102,7 +106,7 @@
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>Can I pick up my order instead of having it delivered?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -112,7 +116,7 @@
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>How far in advance should I order for a special occasion?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -122,7 +126,7 @@
         </div>
       </div>
 
-      <div class="faq-item">
+      <div class="faq-item" data-reveal>
         <button class="faq-question" aria-expanded="false">
           <span>Do you offer vase or vessel options for arrangements?</span>
           <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -135,8 +139,16 @@
     </div>
 
     <div class="faq-cta">
-      <p>Still have questions?</p>
+      <p><em>Still have questions?</em></p>
       <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="btn btn-sage">Message Us on Instagram</a>
+    </div>
+  </section>
+
+  <!-- INSTAGRAM CTA -->
+  <section class="instagram-section">
+    <div class="instagram-inner">
+      <h2 class="instagram-title" data-reveal>Follow Along<br /><em>@amourafloralsfl</em></h2>
+      <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="btn btn-dark" data-reveal data-delay="2">View on Instagram</a>
     </div>
   </section>
 
@@ -166,7 +178,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2024 Amoura Florals. All rights reserved. Made with love in South Florida.</p>
+      <p>&copy; 2025 Amoura Florals. All rights reserved. Made with love in South Florida.</p>
+      <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener">@amourafloralsfl</a>
     </div>
   </footer>
 

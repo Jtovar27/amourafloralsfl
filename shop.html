@@ -12,6 +12,10 @@
 </head>
 <body class="inner-page">
 
+  <!-- CUSTOM CURSOR -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
   <!-- NAV -->
   <header id="site-header" class="scrolled">
     <nav class="nav-container">
@@ -39,14 +43,36 @@
 
   <!-- PAGE BANNER -->
   <section class="page-banner">
-    <div class="page-banner-bg" style="background-image:url('https://images.unsplash.com/photo-1490750967868-88df5691240e?auto=format&fit=crop&w=1600&q=80')"></div>
+    <div class="page-banner-bg" style="background-image:url('https://images.unsplash.com/photo-1490750967868-88df5691240e?auto=format&fit=crop&w=1800&q=85')"></div>
     <div class="page-banner-overlay"></div>
     <div class="page-banner-content">
-      <span class="section-label" style="color:var(--peach)">The Collection</span>
+      <span class="section-label" style="color:var(--peach); padding-left:0;">The Collection</span>
       <h1 class="page-banner-title">Shop Arrangements</h1>
       <p>From everyday blooms to once-in-a-lifetime bouquets</p>
     </div>
   </section>
+
+  <!-- MARQUEE STRIP -->
+  <div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-item">Handcrafted Arrangements <span class="marquee-sep"></span></div>
+      <div class="marquee-item">South Florida <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Made with Love <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Wedding &amp; Events <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Custom Florals <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Amoura Florals <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Fresh &amp; Seasonal <span class="marquee-sep"></span></div>
+      <div class="marquee-item">@amourafloralsfl <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Handcrafted Arrangements <span class="marquee-sep"></span></div>
+      <div class="marquee-item">South Florida <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Made with Love <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Wedding &amp; Events <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Custom Florals <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Amoura Florals <span class="marquee-sep"></span></div>
+      <div class="marquee-item">Fresh &amp; Seasonal <span class="marquee-sep"></span></div>
+      <div class="marquee-item">@amourafloralsfl <span class="marquee-sep"></span></div>
+    </div>
+  </div>
 
   <!-- CATALOG -->
   <section class="catalog-section">
@@ -60,9 +86,9 @@
 
     <div class="catalog-grid" id="catalog-grid">
 
-      <div class="product-card" data-category="weddings">
+      <div class="product-card" data-category="weddings" data-reveal data-delay="1">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80" alt="Blushing Bride Bridal Bouquet" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=85" alt="Blushing Bride Bridal Bouquet" loading="lazy" />
           <button class="quick-add" data-id="1" data-name="Blushing Bride Bridal Bouquet" data-price="245">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -72,9 +98,9 @@
         </div>
       </div>
 
-      <div class="product-card" data-category="bouquets">
+      <div class="product-card" data-category="bouquets" data-reveal data-delay="2">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1561181286-d3f8d8aa7d73?auto=format&fit=crop&w=600&q=80" alt="Garden Romance Bouquet" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1561181286-d3f8d8aa7d73?auto=format&fit=crop&w=600&q=85" alt="Garden Romance Bouquet" loading="lazy" />
           <button class="quick-add" data-id="2" data-name="Garden Romance Bouquet" data-price="85">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -84,9 +110,9 @@
         </div>
       </div>
 
-      <div class="product-card" data-category="centerpieces">
+      <div class="product-card" data-category="centerpieces" data-reveal data-delay="3">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1523693916253-7a76c6a3e0e2?auto=format&fit=crop&w=600&q=80" alt="Sage & Bloom Centerpiece" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1523693916253-7a76c6a3e0e2?auto=format&fit=crop&w=600&q=85" alt="Sage & Bloom Centerpiece" loading="lazy" />
           <button class="quick-add" data-id="3" data-name="Sage & Bloom Centerpiece" data-price="155">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -96,9 +122,9 @@
         </div>
       </div>
 
-      <div class="product-card" data-category="bouquets">
+      <div class="product-card" data-category="bouquets" data-reveal data-delay="4">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=600&q=80" alt="Peach Petal Dreams" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=600&q=85" alt="Peach Petal Dreams" loading="lazy" />
           <button class="quick-add" data-id="4" data-name="Peach Petal Dreams" data-price="75">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -108,9 +134,9 @@
         </div>
       </div>
 
-      <div class="product-card" data-category="weddings">
+      <div class="product-card" data-category="weddings" data-reveal data-delay="1">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=600&q=80" alt="Romantic Ceremony Arch" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=600&q=85" alt="Romantic Ceremony Arch" loading="lazy" />
           <button class="quick-add" data-id="5" data-name="Romantic Ceremony Arch" data-price="580">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -120,9 +146,9 @@
         </div>
       </div>
 
-      <div class="product-card" data-category="gifts">
+      <div class="product-card" data-category="gifts" data-reveal data-delay="2">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=80" alt="Sun-Kissed Wrapped Blooms" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=85" alt="Sun-Kissed Wrapped Blooms" loading="lazy" />
           <button class="quick-add" data-id="6" data-name="Sun-Kissed Wrapped Blooms" data-price="65">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -132,9 +158,9 @@
         </div>
       </div>
 
-      <div class="product-card" data-category="centerpieces">
+      <div class="product-card" data-category="centerpieces" data-reveal data-delay="3">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=80" alt="Lush Greenery Centerpiece" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=600&q=85" alt="Lush Greenery Centerpiece" loading="lazy" />
           <button class="quick-add" data-id="7" data-name="Lush Greenery Centerpiece" data-price="120">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -144,9 +170,9 @@
         </div>
       </div>
 
-      <div class="product-card" data-category="gifts">
+      <div class="product-card" data-category="gifts" data-reveal data-delay="4">
         <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1453906971074-ce568cccbc63?auto=format&fit=crop&w=600&q=80" alt="Wildflower Love Bundle" loading="lazy" />
+          <img src="https://images.unsplash.com/photo-1453906971074-ce568cccbc63?auto=format&fit=crop&w=600&q=85" alt="Wildflower Love Bundle" loading="lazy" />
           <button class="quick-add" data-id="8" data-name="Wildflower Love Bundle" data-price="95">Add to Cart</button>
         </div>
         <div class="product-info">
@@ -159,7 +185,7 @@
     </div>
 
     <div class="catalog-cta">
-      <p>Looking for something custom? We love creating one-of-a-kind arrangements.</p>
+      <p><em>Looking for something completely custom?</em></p>
       <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="btn btn-sage">DM Us on Instagram</a>
     </div>
   </section>
@@ -190,7 +216,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2024 Amoura Florals. All rights reserved. Made with love in South Florida.</p>
+      <p>&copy; 2025 Amoura Florals. All rights reserved. Made with love in South Florida.</p>
+      <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener">@amourafloralsfl</a>
     </div>
   </footer>
 

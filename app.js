@@ -1,12 +1,50 @@
-/* ─────────────────────────────────────────────
-   AMOURA FLORALS — App JS
-   Cart | Filters | Scroll | FAQ | Toast | Mobile Menu
-───────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   AMOURA FLORALS — app.js v2.0
+   Custom Cursor · Cart · Filters · Scroll · FAQ
+   Testimonials · Mobile Menu · Reveal · Counters
+═══════════════════════════════════════════════════════ */
 
-// ── State ──────────────────────────────────
+/* ── Custom Cursor ─────────────────────────────────── */
+(function () {
+  const dot  = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  if (!dot || !ring) return;
+
+  let mouseX = 0, mouseY = 0;
+  let ringX  = 0, ringY  = 0;
+  let raf;
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = mouseX + 'px';
+    dot.style.top  = mouseY + 'px';
+  }, { passive: true });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.14;
+    ringY += (mouseY - ringY) * 0.14;
+    ring.style.left = ringX + 'px';
+    ring.style.top  = ringY + 'px';
+    raf = requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Hide cursor when leaving window
+  document.addEventListener('mouseleave', () => {
+    dot.style.opacity  = '0';
+    ring.style.opacity = '0';
+  });
+  document.addEventListener('mouseenter', () => {
+    dot.style.opacity  = '1';
+    ring.style.opacity = '1';
+  });
+})();
+
+/* ── State ─────────────────────────────────────────── */
 let cart = JSON.parse(localStorage.getItem('amoura_cart') || '[]');
 
-// ── DOM refs ───────────────────────────────
+/* ── DOM refs ──────────────────────────────────────── */
 const header      = document.getElementById('site-header');
 const cartToggle  = document.getElementById('cart-toggle');
 const cartClose   = document.getElementById('cart-close');
@@ -20,7 +58,7 @@ const cartTotal   = document.getElementById('cart-total');
 const checkoutBtn = document.getElementById('checkout-btn');
 const toast       = document.getElementById('toast');
 
-// ── Inject hamburger + mobile menu ─────────
+/* ── Hamburger + Mobile Menu (injected) ────────────── */
 const hamburger = document.createElement('button');
 hamburger.className = 'hamburger';
 hamburger.setAttribute('aria-label', 'Open menu');
@@ -28,24 +66,22 @@ hamburger.innerHTML = '<span></span><span></span><span></span>';
 
 const mobileMenu = document.createElement('nav');
 mobileMenu.className = 'mobile-menu';
+mobileMenu.setAttribute('aria-label', 'Mobile navigation');
 mobileMenu.innerHTML = `
   <button class="mobile-menu-close" aria-label="Close menu">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
     </svg>
   </button>
-
   <div class="mobile-menu-top">
     <img src="logo.png" alt="Amoura Florals" class="mobile-menu-logo" />
   </div>
-
   <div class="mobile-menu-links">
     <a href="index.html">Home</a>
     <a href="shop.html">Shop</a>
     <a href="about.html">About</a>
     <a href="faq.html">FAQ</a>
   </div>
-
   <div class="mobile-menu-bottom">
     <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="mm-instagram">
       @amourafloralsfl
@@ -54,7 +90,6 @@ mobileMenu.innerHTML = `
 `;
 document.body.appendChild(mobileMenu);
 
-// Insert hamburger as first element in nav-left (☰ | logo | cart)
 const navLeft = document.querySelector('.nav-left');
 if (navLeft) navLeft.insertBefore(hamburger, navLeft.firstChild);
 
@@ -64,6 +99,7 @@ function openMenu() {
   hamburger.setAttribute('aria-label', 'Close menu');
   document.body.style.overflow = 'hidden';
 }
+
 function closeMenu() {
   mobileMenu.classList.remove('open');
   hamburger.classList.remove('open');
@@ -76,31 +112,36 @@ hamburger.addEventListener('click', () => {
 });
 
 mobileMenu.querySelector('.mobile-menu-close').addEventListener('click', closeMenu);
+mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
 
-// Close on link click
-mobileMenu.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', closeMenu);
-});
-
-// ── Navigation scroll behavior ─────────────
-const scrollThreshold = 80;
+/* ── Scroll: nav + hero parallax ───────────────────── */
+let lastScroll = 0;
 
 window.addEventListener('scroll', () => {
-  if (window.scrollY > scrollThreshold) {
+  const y = window.scrollY;
+
+  if (y > 60) {
     header.classList.add('scrolled');
   } else {
     header.classList.remove('scrolled');
   }
 
-  // Subtle parallax on hero bg
+  // Hero parallax
   const heroBg = document.querySelector('.hero-bg');
   if (heroBg) {
-    const offset = window.scrollY * 0.3;
-    heroBg.style.transform = `scale(1.05) translateY(${offset}px)`;
+    heroBg.style.transform = `scale(1.06) translateY(${y * 0.22}px)`;
   }
+
+  // Page banner parallax
+  const bannerBg = document.querySelector('.page-banner-bg');
+  if (bannerBg) {
+    bannerBg.style.transform = `scale(1.06) translateY(${y * 0.15}px)`;
+  }
+
+  lastScroll = y;
 }, { passive: true });
 
-// ── Cart open / close ──────────────────────
+/* ── Cart open / close ─────────────────────────────── */
 function openCart() {
   cartSidebar.classList.add('open');
   cartOverlay.classList.add('active');
@@ -113,11 +154,19 @@ function closeCartFn() {
   document.body.style.overflow = '';
 }
 
-cartToggle.addEventListener('click', openCart);
-cartClose.addEventListener('click', closeCartFn);
-cartOverlay.addEventListener('click', closeCartFn);
+if (cartToggle)  cartToggle.addEventListener('click', openCart);
+if (cartClose)   cartClose.addEventListener('click', closeCartFn);
+if (cartOverlay) cartOverlay.addEventListener('click', closeCartFn);
 
-// ── Cart logic ─────────────────────────────
+// ESC to close
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeCartFn();
+    closeMenu();
+  }
+});
+
+/* ── Cart logic ────────────────────────────────────── */
 function saveCart() {
   localStorage.setItem('amoura_cart', JSON.stringify(cart));
 }
@@ -132,7 +181,7 @@ function addToCart(id, name, price) {
   saveCart();
   renderCart();
   updateCartCount();
-  showToast(`${name} added to cart`);
+  showToast(`${name} added`);
   openCart();
 }
 
@@ -147,10 +196,7 @@ function changeQty(id, delta) {
   const item = cart.find(i => i.id === id);
   if (!item) return;
   item.qty += delta;
-  if (item.qty <= 0) {
-    removeFromCart(id);
-    return;
-  }
+  if (item.qty <= 0) { removeFromCart(id); return; }
   saveCart();
   renderCart();
   updateCartCount();
@@ -158,29 +204,32 @@ function changeQty(id, delta) {
 
 function updateCartCount() {
   const total = cart.reduce((acc, i) => acc + i.qty, 0);
-  cartCount.textContent = total;
-  cartCount.classList.toggle('visible', total > 0);
+  if (cartCount) {
+    cartCount.textContent = total;
+    cartCount.classList.toggle('visible', total > 0);
+  }
 }
 
 function renderCart() {
+  if (!cartItems) return;
   cartItems.innerHTML = '';
   const total = cart.reduce((acc, i) => acc + i.qty, 0);
 
   if (total === 0) {
-    cartEmpty.style.display = 'flex';
-    cartFooter.style.display = 'none';
+    if (cartEmpty)  cartEmpty.style.display  = 'flex';
+    if (cartFooter) cartFooter.style.display = 'none';
     return;
   }
 
-  cartEmpty.style.display = 'none';
-  cartFooter.style.display = 'block';
+  if (cartEmpty)  cartEmpty.style.display  = 'none';
+  if (cartFooter) cartFooter.style.display = 'block';
 
   cart.forEach(item => {
     const el = document.createElement('div');
     el.className = 'cart-item';
     el.innerHTML = `
-      <div style="background:var(--peach);height:80px;display:flex;align-items:center;justify-content:center;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818263" stroke-width="1.2">
+      <div style="background:var(--off-white);aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;width:80px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sage-light)" stroke-width="1.2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
       </div>
@@ -193,7 +242,7 @@ function renderCart() {
           <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
         </div>
       </div>
-      <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Remove">
+      <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Remove ${item.name}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
@@ -202,48 +251,54 @@ function renderCart() {
     cartItems.appendChild(el);
   });
 
-  cartTotal.textContent = `$${cart.reduce((acc, i) => acc + i.price * i.qty, 0).toFixed(2)}`;
+  if (cartTotal) {
+    cartTotal.textContent = `$${cart.reduce((acc, i) => acc + i.price * i.qty, 0).toFixed(2)}`;
+  }
 }
 
-// ── Add to cart — delegated ─────────────────
+/* ── Quick-add delegation ──────────────────────────── */
 document.querySelectorAll('.quick-add').forEach(btn => {
-  btn.addEventListener('click', (e) => {
+  btn.addEventListener('click', e => {
     e.stopPropagation();
     const { id, name, price } = btn.dataset;
     addToCart(id, name, price);
   });
 });
 
-// ── Checkout mock ──────────────────────────
+/* ── Checkout ──────────────────────────────────────── */
 if (checkoutBtn) {
   checkoutBtn.addEventListener('click', () => {
-    showToast('Redirecting to checkout...');
-    setTimeout(() => {
-      window.open('https://www.instagram.com/amourafloralsfl/', '_blank');
-    }, 800);
+    showToast('Connecting to Instagram…');
+    setTimeout(() => window.open('https://www.instagram.com/amourafloralsfl/', '_blank'), 900);
   });
 }
 
-// ── Toast ──────────────────────────────────
+/* ── Toast ─────────────────────────────────────────── */
 let toastTimer;
 function showToast(msg) {
   clearTimeout(toastTimer);
+  if (!toast) return;
   toast.textContent = msg;
   toast.classList.add('show');
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
-// ── Catalog filters ────────────────────────
+/* ── Catalog filters ───────────────────────────────── */
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const filter = btn.dataset.filter;
+    let delay = 0;
     document.querySelectorAll('.product-card').forEach(card => {
       if (filter === 'all' || card.dataset.category === filter) {
         card.classList.remove('hidden');
+        card.style.animationDelay = `${delay * 60}ms`;
         card.style.animation = 'none';
-        requestAnimationFrame(() => { card.style.animation = 'fadeIn 0.4s ease forwards'; });
+        requestAnimationFrame(() => {
+          card.style.animation = 'fadeUp 0.45s var(--ease-out) both';
+        });
+        delay++;
       } else {
         card.classList.add('hidden');
       }
@@ -251,14 +306,16 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-// ── FAQ accordion ──────────────────────────
+/* ── FAQ accordion ─────────────────────────────────── */
 document.querySelectorAll('.faq-question').forEach(btn => {
   btn.addEventListener('click', () => {
     const expanded = btn.getAttribute('aria-expanded') === 'true';
+    // close all
     document.querySelectorAll('.faq-question').forEach(b => {
       b.setAttribute('aria-expanded', 'false');
       b.nextElementSibling.classList.remove('open');
     });
+    // open clicked if was closed
     if (!expanded) {
       btn.setAttribute('aria-expanded', 'true');
       btn.nextElementSibling.classList.add('open');
@@ -266,88 +323,38 @@ document.querySelectorAll('.faq-question').forEach(btn => {
   });
 });
 
-// ── Intersection observer — fade-in ─────────
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('in-view');
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-
-document.querySelectorAll(
-  '.product-card, .value-item, .faq-item, .about-text, .about-images, .featured-text, .featured-images'
-).forEach(el => { el.classList.add('observe'); observer.observe(el); });
-
-// Fade the entire carousel in as one unit
-const carouselEl = document.querySelector('.testimonials-carousel');
-if (carouselEl) { carouselEl.classList.add('observe'); observer.observe(carouselEl); }
-
-// Inject observe CSS
-const observeStyle = document.createElement('style');
-observeStyle.textContent = `
-  .observe { opacity:0; transform:translateY(24px);
-    transition: opacity 0.65s cubic-bezier(.25,.46,.45,.94), transform 0.65s cubic-bezier(.25,.46,.45,.94); }
-  .observe.in-view { opacity:1; transform:translateY(0); }
-  .product-card.observe { transition-delay: var(--delay,0ms); }
-`;
-document.head.appendChild(observeStyle);
-
-document.querySelectorAll('.product-card').forEach((card, i) => card.style.setProperty('--delay', `${i * 60}ms`));
-document.querySelectorAll('.value-item').forEach((el, i) => {
-  el.style.transition = `opacity 0.65s ${i*100}ms cubic-bezier(.25,.46,.45,.94), transform 0.65s ${i*100}ms cubic-bezier(.25,.46,.45,.94)`;
-});
-
-// ── Smooth scroll for anchor links ─────────
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener('click', (e) => {
-    const target = document.querySelector(link.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - header.offsetHeight, behavior: 'smooth' });
-    }
-  });
-});
-
-// ── Testimonials carousel ──────────────────
+/* ── Testimonials carousel ─────────────────────────── */
 (function () {
   const track = document.querySelector('.testimonials-track');
   if (!track) return;
 
-  const cards = track.querySelectorAll('.testimonial-card');
-  const dots  = document.querySelectorAll('.t-dot');
-  let current = 0;
+  const cards    = track.querySelectorAll('.testimonial-card');
+  const dots     = document.querySelectorAll('.t-dot');
+  let current    = 0;
   let timer;
-  const INTERVAL = 4500;
+  const INTERVAL = 4800;
 
   function goTo(index) {
     cards[current].setAttribute('aria-hidden', 'true');
-    dots[current].classList.remove('active');
-    dots[current].setAttribute('aria-selected', 'false');
-
-    current = (index + cards.length) % cards.length;
-
+    if (dots[current]) {
+      dots[current].classList.remove('active');
+      dots[current].setAttribute('aria-selected', 'false');
+    }
+    current = ((index % cards.length) + cards.length) % cards.length;
     track.style.transform = `translateX(-${current * 100}%)`;
     cards[current].setAttribute('aria-hidden', 'false');
-    dots[current].classList.add('active');
-    dots[current].setAttribute('aria-selected', 'true');
+    if (dots[current]) {
+      dots[current].classList.add('active');
+      dots[current].setAttribute('aria-selected', 'true');
+    }
   }
 
-  function startAuto() {
-    timer = setInterval(() => goTo(current + 1), INTERVAL);
-  }
+  function startAuto() { timer = setInterval(() => goTo(current + 1), INTERVAL); }
+  function resetAuto()  { clearInterval(timer); startAuto(); }
 
-  function resetAuto() {
-    clearInterval(timer);
-    startAuto();
-  }
+  dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); resetAuto(); }));
 
-  dots.forEach((dot, i) => {
-    dot.addEventListener('click', () => { goTo(i); resetAuto(); });
-  });
-
-  // Touch/swipe support
+  // Touch/swipe
   let touchStartX = 0;
   track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
   track.addEventListener('touchend', e => {
@@ -358,6 +365,67 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   startAuto();
 })();
 
-// ── Init ───────────────────────────────────
+/* ── Scroll Reveal (data-reveal) ───────────────────── */
+(function () {
+  const els = document.querySelectorAll('[data-reveal]');
+  if (!els.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  els.forEach(el => observer.observe(el));
+})();
+
+/* ── Stat counters ─────────────────────────────────── */
+(function () {
+  const stats = document.querySelectorAll('.stat-num[data-count]');
+  if (!stats.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el     = entry.target;
+      const target = parseInt(el.dataset.count, 10);
+      const suffix = el.textContent.replace(/[0-9]/g, '');
+      let start     = 0;
+      const dur     = 1400;
+      const step    = 16;
+      const inc     = target / (dur / step);
+
+      const tick = setInterval(() => {
+        start = Math.min(start + inc, target);
+        el.textContent = Math.floor(start) + suffix;
+        if (start >= target) clearInterval(tick);
+      }, step);
+
+      observer.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  stats.forEach(el => observer.observe(el));
+})();
+
+/* ── Smooth anchor scroll ──────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      const offset = header ? header.offsetHeight : 0;
+      window.scrollTo({
+        top: target.getBoundingClientRect().top + window.scrollY - offset,
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+
+/* ── Init ──────────────────────────────────────────── */
 renderCart();
 updateCartCount();
