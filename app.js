@@ -74,7 +74,7 @@ mobileMenu.innerHTML = `
     </svg>
   </button>
   <div class="mobile-menu-top">
-    <img src="logo.png" alt="Amoura Florals" class="mobile-menu-logo" />
+    <img src="amoura_logo_transparent_clean.png" alt="Amoura Florals" class="mobile-menu-logo" />
   </div>
   <div class="mobile-menu-links">
     <a href="index.html">Home</a>
