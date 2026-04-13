@@ -906,7 +906,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   position: absolute;
   bottom: -1.5rem;
   left: -1.5rem;
-  width: 110px; height: 110px;
+  width: 140px; height: 140px;
   background: var(--ink);
   border-radius: 50%;
   display: flex;
@@ -929,7 +929,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .fi-badge .fi-badge-year {
   font-family: var(--ff-serif);
-  font-size: 1.5rem;
+  font-size: 1.9rem;
   font-weight: 300;
   color: var(--peach);
   line-height: 1;
