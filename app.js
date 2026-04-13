@@ -450,3 +450,27 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
 /* ── Init ──────────────────────────────────────────── */
 renderCart();
 updateCartCount();
+
+/* ── Values Carousel ───────────────────────────────── */
+(function () {
+  const carousel = document.getElementById('valuesCarousel');
+  if (!carousel) return;
+  const dots = document.querySelectorAll('.vc-dot');
+
+  function updateDots(index) {
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+  }
+
+  carousel.addEventListener('scroll', () => {
+    const index = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+    updateDots(index);
+  }, { passive: true });
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const i = parseInt(dot.dataset.index);
+      carousel.scrollTo({ left: i * carousel.offsetWidth, behavior: 'smooth' });
+      updateDots(i);
+    });
+  });
+})();
