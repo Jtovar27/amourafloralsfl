@@ -1960,7 +1960,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   .hero-title { font-size: clamp(3rem, 11vw, 5rem); }
 
   .cart-sidebar { width: 100vw; }
-  .page-banner { height: clamp(260px, 55vw, 380px); }
+  .page-banner { height: clamp(320px, 65vw, 420px); }
 }
 
 @media (max-width: 480px) {
@@ -1970,8 +1970,8 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   .hero-title { font-size: clamp(2.6rem, 12vw, 4rem); line-height: 1.0; }
   .hero-cta-wrap { flex-direction: column; gap: 0.8rem; }
   .hero-content { padding-top: 165px; }
-  .page-banner { align-items: flex-start; }
-  .page-banner-content { padding-top: 160px; }
+  .page-banner { height: clamp(320px, 70vw, 460px); align-items: flex-start; }
+  .page-banner-content { padding-top: 155px; }
   .catalog-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
   .testimonials-grid { grid-template-columns: 1fr; }
   .instagram-inner { grid-template-columns: 1fr; }
