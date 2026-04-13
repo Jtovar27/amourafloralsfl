@@ -1884,8 +1884,9 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .footer-hours {
   margin-top: 0.4rem;
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.3);
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.62);
   line-height: 1.9;
 }
 
