@@ -599,6 +599,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 44px;
   font-family: var(--ff-serif);
   font-size: clamp(2.2rem, 8vw, 3rem);
   color: rgba(255,255,255,0.85);
@@ -611,6 +612,12 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   cursor: pointer;
   transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
   text-align: left;
+}
+
+.mm-shop-toggle:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.6);
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -669,6 +676,13 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
     color: var(--peach);
     transform: translateX(0.4rem);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-shop-sub { transition: none; }
+  .mm-shop-chevron { transition: none; }
+  .mm-shop-toggle { transition: none; }
+  .mm-shop-sub a { transition: none; }
 }
 
 /* ═══════════════════════════════════════════════════════
