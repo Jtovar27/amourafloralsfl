@@ -706,13 +706,18 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .hero-socials a {
   color: rgba(255,255,255,0.55);
-  transition: color var(--transition), transform 0.2s var(--ease-out);
+  border: 1px solid rgba(255,255,255,0.35);
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  transition: color var(--transition), border-color var(--transition), transform 0.2s var(--ease-out);
 }
 
 .hero-socials a:hover {
   color: var(--peach);
+  border-color: var(--peach);
   transform: translateY(-2px);
 }
 
