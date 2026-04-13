@@ -1925,7 +1925,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   .hero { align-items: flex-start; }
   .hero-title { font-size: clamp(2.6rem, 12vw, 4rem); line-height: 1.0; }
   .hero-cta-wrap { flex-direction: column; gap: 0.8rem; }
-  .hero-content { padding-top: 130px; }
+  .hero-content { padding-top: 165px; }
   .page-banner-content { padding-top: 0; }
   .catalog-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
   .testimonials-grid { grid-template-columns: 1fr; }
