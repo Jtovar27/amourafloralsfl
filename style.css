@@ -1970,8 +1970,9 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   .hero-title { font-size: clamp(2.6rem, 12vw, 4rem); line-height: 1.0; }
   .hero-cta-wrap { flex-direction: column; gap: 0.8rem; }
   .hero-content { padding-top: 165px; }
-  .page-banner { height: clamp(320px, 70vw, 460px); align-items: flex-start; }
-  .page-banner-content { padding-top: 155px; }
+  .page-banner { height: clamp(380px, 80vw, 500px); align-items: flex-start; }
+  .page-banner-content { padding-top: 150px; }
+  .page-banner-title { font-size: clamp(2.2rem, 9vw, 3rem); }
   .catalog-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
   .testimonials-grid { grid-template-columns: 1fr; }
   .instagram-inner { grid-template-columns: 1fr; }
