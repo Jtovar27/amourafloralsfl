@@ -1356,6 +1356,8 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .about-img-main {
   overflow: hidden;
+  display: flex;
+  justify-content: center;
 }
 
 .about-img-main img {
@@ -1364,6 +1366,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   object-fit: cover;
   object-position: center 30%;
   display: block;
+  margin: 0 auto;
   transition: transform 0.9s var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
