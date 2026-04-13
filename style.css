@@ -735,7 +735,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 190px var(--gutter) 0;
+  padding: 190px var(--gutter) 6rem;
   max-width: 1000px;
 }
 
@@ -998,6 +998,19 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   transform: scale(1.4);
 }
 
+/* ─── Values carousel: 3-column grid on desktop ──── */
+@media (min-width: 901px) {
+  .values-carousel {
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .vc-card {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .vc-dots { display: none; }
+}
+
 /* legacy — hide old classes if referenced */
 .value-icon { display: none; }
 
@@ -1005,7 +1018,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
    FEATURED INTRO — Editorial Split
 ═══════════════════════════════════════════════════════ */
 .featured-intro {
-  padding: var(--section-py) var(--gutter);
+  padding: var(--section-py) var(--gutter) calc(var(--section-py) + 2.5rem);
   max-width: var(--max-w);
   margin: 0 auto;
 }
@@ -1535,7 +1548,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: calc(var(--ann-h) + 150px) var(--gutter) 0;
+  padding: calc(var(--ann-h) + 150px) var(--gutter) 4rem;
 }
 
 .page-banner-content p {
@@ -1699,7 +1712,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
    ABOUT PAGE
 ═══════════════════════════════════════════════════════ */
 .about-section {
-  padding: var(--section-py) var(--gutter);
+  padding: var(--section-py) var(--gutter) calc(var(--section-py) + 3rem);
 }
 
 .about-inner {
