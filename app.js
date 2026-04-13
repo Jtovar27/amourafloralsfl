@@ -81,6 +81,7 @@ mobileMenu.innerHTML = `
     <a href="shop.html">Shop</a>
     <a href="about.html">About</a>
     <a href="faq.html">FAQ</a>
+    <a href="contact.html">Contact</a>
   </div>
   <div class="mobile-menu-bottom">
     <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="mm-instagram">
@@ -445,6 +446,62 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
       sessionStorage.setItem('ann_dismissed', '1');
     });
   }
+})();
+
+/* ── Contact Form ──────────────────────────────────── */
+(function () {
+  const form    = document.getElementById('contact-form');
+  const success = document.getElementById('contact-success');
+  if (!form) return;
+
+  function validate() {
+    let ok = true;
+    form.querySelectorAll('[required]').forEach(el => {
+      const empty = el.value.trim() === '';
+      const emailBad = el.type === 'email' && el.value.trim() !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+      if (empty || emailBad) {
+        el.classList.add('invalid');
+        ok = false;
+      } else {
+        el.classList.remove('invalid');
+      }
+    });
+    return ok;
+  }
+
+  form.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.remove('invalid'));
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    const btn = form.querySelector('.contact-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    // Build mailto link as the delivery mechanism (no backend required)
+    const first   = form.first_name.value.trim();
+    const last    = form.last_name.value.trim();
+    const phone   = form.phone.value.trim();
+    const email   = form.email.value.trim();
+    const message = form.message.value.trim();
+
+    const body = `Name: ${first} ${last}\nPhone: ${phone || 'N/A'}\nEmail: ${email}\n\nMessage:\n${message}`;
+    const mailto = `mailto:amourafloralsco@gmail.com?subject=${encodeURIComponent('Contact Form — ' + first + ' ' + last)}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = mailto;
+
+    // Show success state after short delay
+    setTimeout(() => {
+      form.reset();
+      btn.textContent = 'Send Message';
+      btn.disabled = false;
+      if (success) success.classList.add('show');
+      setTimeout(() => success && success.classList.remove('show'), 5000);
+    }, 800);
+  });
 })();
 
 /* ── Init ──────────────────────────────────────────── */
