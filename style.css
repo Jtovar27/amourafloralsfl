@@ -589,6 +589,88 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 }
 .mm-instagram:hover { color: var(--peach); }
 
+/* ─── Mobile shop submenu ───────────────────────────── */
+.mm-shop-group {
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.mm-shop-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--ff-serif);
+  font-size: clamp(2.2rem, 8vw, 3rem);
+  color: rgba(255,255,255,0.85);
+  font-weight: 300;
+  font-style: italic;
+  padding: 0.6rem 0;
+  letter-spacing: -0.01em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  text-align: left;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mm-shop-toggle:hover {
+    color: var(--peach);
+    transform: translateX(0.5rem);
+  }
+}
+
+.mm-shop-toggle.active {
+  color: var(--peach);
+}
+
+.mm-shop-chevron {
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  transition: transform 0.35s var(--ease-out);
+  opacity: 0.7;
+}
+
+.mm-shop-toggle.active .mm-shop-chevron {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.mm-shop-sub {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.38s var(--ease-out);
+}
+
+.mm-shop-sub.open {
+  max-height: 22rem;
+}
+
+.mm-shop-sub a {
+  display: block;
+  font-family: var(--ff-sans, sans-serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  padding: 0.55rem 0 0.55rem 1.2rem;
+  border-bottom: none;
+  transition: color 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.mm-shop-sub a:last-child {
+  padding-bottom: 1rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mm-shop-sub a:hover {
+    color: var(--peach);
+    transform: translateX(0.4rem);
+  }
+}
+
 /* ═══════════════════════════════════════════════════════
    HERO — Cinematic
 ═══════════════════════════════════════════════════════ */

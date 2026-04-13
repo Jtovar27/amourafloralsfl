@@ -78,7 +78,19 @@ mobileMenu.innerHTML = `
   </div>
   <div class="mobile-menu-links">
     <a href="index.html">Home</a>
-    <a href="shop.html">Shop</a>
+    <div class="mm-shop-group">
+      <button class="mm-shop-toggle" aria-expanded="false">
+        Shop
+        <svg class="mm-shop-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="mm-shop-sub" aria-hidden="true">
+        <a href="shop.html">All</a>
+        <a href="shop.html?filter=bouquets">Bouquets</a>
+        <a href="shop.html?filter=centerpieces">Centerpieces</a>
+        <a href="shop.html?filter=weddings">Weddings</a>
+        <a href="shop.html?filter=gifts">Gifts &amp; Wrapped</a>
+      </div>
+    </div>
     <a href="about.html">About</a>
     <a href="faq.html">FAQ</a>
     <a href="contact.html">Contact</a>
@@ -101,11 +113,26 @@ function openMenu() {
   document.body.style.overflow = 'hidden';
 }
 
+/* ── Mobile shop submenu toggle ─────────────────────── */
+const mmShopToggle = mobileMenu.querySelector('.mm-shop-toggle');
+const mmShopSub    = mobileMenu.querySelector('.mm-shop-sub');
+mmShopToggle.addEventListener('click', () => {
+  const expanded = mmShopToggle.getAttribute('aria-expanded') === 'true';
+  mmShopToggle.setAttribute('aria-expanded', String(!expanded));
+  mmShopSub.setAttribute('aria-hidden', String(expanded));
+  mmShopSub.classList.toggle('open', !expanded);
+  mmShopToggle.classList.toggle('active', !expanded);
+});
+
 function closeMenu() {
   mobileMenu.classList.remove('open');
   hamburger.classList.remove('open');
   hamburger.setAttribute('aria-label', 'Open menu');
   document.body.style.overflow = '';
+  mmShopToggle.setAttribute('aria-expanded', 'false');
+  mmShopSub.setAttribute('aria-hidden', 'true');
+  mmShopSub.classList.remove('open');
+  mmShopToggle.classList.remove('active');
 }
 
 hamburger.addEventListener('click', () => {
@@ -306,6 +333,15 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     });
   });
 });
+
+/* ── Auto-apply filter from URL param (?filter=xxx) ── */
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const f = params.get('filter');
+  if (!f) return;
+  const target = document.querySelector(`.filter-btn[data-filter="${f}"]`);
+  if (target) target.click();
+})();
 
 /* ── FAQ accordion ─────────────────────────────────── */
 document.querySelectorAll('.faq-question').forEach(btn => {
