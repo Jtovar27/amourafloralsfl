@@ -1310,6 +1310,15 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   gap: 2.25rem;
 }
 
+.newsletter-title {
+  font-family: var(--ff-sans);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
 .newsletter-heading {
   font-family: var(--ff-serif);
   font-size: clamp(1.4rem, 2.8vw, 2rem);
