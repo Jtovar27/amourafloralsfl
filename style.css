@@ -757,7 +757,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
    MARQUEE STRIP
 ═══════════════════════════════════════════════════════ */
 .marquee-strip {
-  background: var(--sage);
+  background: var(--peach);
   overflow: hidden;
   padding: 0.85rem 0;
   position: relative;
@@ -784,7 +784,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--peach);
+  color: var(--sage-dark);
 }
 
 .marquee-sep {
