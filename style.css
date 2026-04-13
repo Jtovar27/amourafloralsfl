@@ -977,7 +977,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   position: absolute;
   bottom: -1.5rem;
   left: -1.5rem;
-  width: 140px; height: 140px;
+  width: 165px; height: 165px;
   background: var(--ink);
   border-radius: 50%;
   display: flex;
@@ -991,8 +991,8 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .fi-badge span {
   font-family: var(--ff-sans);
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(239,215,207,0.7);
   line-height: 1.4;
@@ -1954,8 +1954,8 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   .footer-logo { grid-column: auto; }
 
   .about-stats { gap: 1.5rem; flex-wrap: wrap; }
-  .fi-badge { width: 85px; height: 85px; bottom: -1rem; left: -1rem; }
-  .fi-badge .fi-badge-year { font-size: 1.2rem; }
+  .fi-badge { width: 110px; height: 110px; bottom: -1rem; left: -1rem; }
+  .fi-badge .fi-badge-year { font-size: 1.5rem; }
 
   .hero-title { font-size: clamp(3rem, 11vw, 5rem); }
 
