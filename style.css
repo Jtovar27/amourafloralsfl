@@ -230,7 +230,7 @@ h1 { font-size: clamp(3.2rem, 7.5vw, 6.5rem); }
 h2 { font-size: clamp(2.2rem, 4.5vw, 3.8rem); }
 h3 { font-size: clamp(1.25rem, 2vw, 1.6rem); }
 em { font-style: italic; }
-p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8; }
+p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8; }
 
 .section-label {
   display: inline-block;
@@ -770,7 +770,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .hero-sub {
   color: rgba(255,255,255,0.72);
-  font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+  font-size: clamp(1rem, 1.4vw, 1.1rem);
   font-weight: 300;
   letter-spacing: 0.04em;
   margin-bottom: 3rem;
@@ -793,7 +793,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 .hero-socials {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 1.2rem;
   margin-top: 1.8rem;
   opacity: 0;
@@ -1023,7 +1023,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .featured-text p {
   margin-bottom: 1.8rem;
-  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  font-size: clamp(1rem, 1.3vw, 1.05rem);
   line-height: 1.9;
   color: var(--mid);
 }
@@ -1392,7 +1392,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
    INSTAGRAM CTA
 ═══════════════════════════════════════════════════════ */
 .newsletter-section {
-  padding: clamp(4rem, 8vw, 6rem) var(--gutter);
+  padding: var(--section-py) var(--gutter);
   background: var(--off-white);
 }
 
@@ -1535,7 +1535,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 150px var(--gutter) 0;
+  padding: calc(var(--ann-h) + 150px) var(--gutter) 0;
 }
 
 .page-banner-content p {
@@ -1792,7 +1792,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 
 .about-text p {
   margin-bottom: 1.5rem;
-  font-size: clamp(0.92rem, 1.2vw, 1rem);
+  font-size: clamp(1rem, 1.2vw, 1.05rem);
   line-height: 1.9;
 }
 
@@ -1914,7 +1914,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 .site-footer {
   background: var(--ink);
   color: rgba(255,255,255,0.7);
-  padding: clamp(4rem, 7vw, 6rem) var(--gutter) 0;
+  padding: var(--section-py) var(--gutter) 0;
 }
 
 .footer-inner {
@@ -2291,7 +2291,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   .hero-cta-wrap { flex-direction: column; gap: 0.8rem; }
   .hero-content { padding-top: 165px; }
   .page-banner { height: clamp(380px, 80vw, 500px); align-items: flex-start; }
-  .page-banner-content { padding-top: 150px; }
+  .page-banner-content { padding-top: calc(var(--ann-h) + 110px); }
   .page-banner-title { font-size: clamp(2.2rem, 9vw, 3rem); }
   .catalog-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
   .testimonials-grid { grid-template-columns: 1fr; }
