@@ -694,6 +694,28 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   animation: fadeUpIn 1s 0.95s var(--ease-out) forwards;
 }
 
+.hero-socials {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 1.8rem;
+  opacity: 0;
+  animation: fadeUpIn 1s 1.1s var(--ease-out) forwards;
+}
+
+.hero-socials a {
+  color: rgba(255,255,255,0.55);
+  transition: color var(--transition), transform 0.2s var(--ease-out);
+  display: flex;
+  align-items: center;
+}
+
+.hero-socials a:hover {
+  color: var(--peach);
+  transform: translateY(-2px);
+}
+
 .hero-scroll {
   position: absolute;
   bottom: 2.5rem;
