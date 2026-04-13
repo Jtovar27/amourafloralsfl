@@ -1880,8 +1880,15 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   color: var(--peach);
 }
 
-.footer-hours {
+.footer-hours-label {
   margin-top: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.62);
+}
+
+.footer-hours {
+  margin-top: 0.4rem;
   font-size: 0.78rem;
   color: rgba(255,255,255,0.3);
   line-height: 1.9;
