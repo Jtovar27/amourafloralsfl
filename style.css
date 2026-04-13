@@ -1295,46 +1295,96 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 /* ═══════════════════════════════════════════════════════
    INSTAGRAM CTA
 ═══════════════════════════════════════════════════════ */
-.instagram-section {
-  position: relative;
-  overflow: hidden;
-  padding: var(--section-py) var(--gutter);
-  background: var(--peach);
+.newsletter-section {
+  padding: clamp(4rem, 8vw, 6rem) var(--gutter);
+  background: var(--off-white);
 }
 
-/* Subtle dot pattern */
-.instagram-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(129,130,99,0.12) 1px, transparent 1px);
-  background-size: 28px 28px;
-  pointer-events: none;
-}
-
-.instagram-inner {
-  max-width: var(--max-w);
+.newsletter-inner {
+  max-width: 640px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 3rem;
-  position: relative;
-  z-index: 1;
+  gap: 2.25rem;
 }
 
-.instagram-title {
+.newsletter-heading {
   font-family: var(--ff-serif);
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  color: var(--ink);
+  font-size: clamp(1.4rem, 2.8vw, 2rem);
   font-weight: 300;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  color: var(--mid);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
 }
 
-.instagram-title em {
-  font-style: italic;
+.newsletter-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.newsletter-field {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid var(--sage-xlight);
+  background: var(--warm-white);
+  transition: border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+
+.newsletter-field:focus-within {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(129,130,99,0.1);
+}
+
+.newsletter-field input {
+  flex: 1;
+  padding: 1.1rem 1.4rem;
+  font-family: var(--ff-sans);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.newsletter-field input::placeholder {
+  color: var(--light-text);
+}
+
+.newsletter-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  color: var(--mid);
+  transition: color 0.2s var(--ease-out), background 0.2s var(--ease-out);
+}
+
+.newsletter-arrow:hover {
+  color: var(--ink);
+  background: rgba(129,130,99,0.08);
+}
+
+.newsletter-success {
+  display: none;
+  font-family: var(--ff-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--sage-dark);
+}
+
+.newsletter-success.show {
+  display: block;
 }
 
 /* ═══════════════════════════════════════════════════════

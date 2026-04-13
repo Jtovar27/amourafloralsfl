@@ -448,6 +448,30 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   }
 })();
 
+/* ── Newsletter Form ───────────────────────────────── */
+(function () {
+  const form    = document.getElementById('newsletter-form');
+  const success = document.getElementById('newsletter-success');
+  if (!form) return;
+
+  const input = form.querySelector('input[type="email"]');
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const email = input.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      input.style.borderBottom = '1px solid #c0635a';
+      input.focus();
+      return;
+    }
+    input.style.borderBottom = '';
+    form.querySelector('.newsletter-field').style.display = 'none';
+    if (success) success.classList.add('show');
+  });
+
+  input.addEventListener('input', () => { input.style.borderBottom = ''; });
+})();
+
 /* ── Contact Form ──────────────────────────────────── */
 (function () {
   const form    = document.getElementById('contact-form');
