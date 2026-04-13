@@ -14,7 +14,7 @@
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 250;
-  background: var(--sage);
+  background: var(--peach);
   height: var(--ann-h);
   display: flex;
   align-items: center;
@@ -45,7 +45,7 @@
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--sage);
   white-space: nowrap;
 }
 
@@ -1010,7 +1010,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
    TESTIMONIALS — Dark Section
 ═══════════════════════════════════════════════════════ */
 .testimonials-section {
-  background: var(--sage);
+  background: var(--peach);
   padding: var(--section-py) var(--gutter);
   position: relative;
   overflow: hidden;
@@ -1032,8 +1032,8 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 }
 
 .testimonials-section .section-header { margin-bottom: 3.5rem; }
-.testimonials-section .section-label { color: var(--peach); }
-.testimonials-section .section-title { color: #fff; }
+.testimonials-section .section-label { color: var(--sage-dark); }
+.testimonials-section .section-title { color: var(--sage-dark); }
 
 .testimonials-carousel {
   max-width: 860px;
@@ -1054,7 +1054,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 }
 
 .testimonial-stars {
-  color: var(--sage);
+  color: var(--sage-dark);
   font-size: 0.9rem;
   letter-spacing: 0.2em;
   margin-bottom: 2rem;
@@ -1063,7 +1063,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 .testimonial-card p {
   font-family: var(--ff-serif);
   font-size: clamp(1.25rem, 2.2vw, 1.75rem);
-  color: rgba(255,255,255,0.92);
+  color: var(--sage-dark);
   font-style: italic;
   font-weight: 300;
   line-height: 1.55;
@@ -1075,7 +1075,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--peach);
+  color: var(--sage);
   font-family: var(--ff-sans);
   font-weight: 500;
 }
@@ -1090,7 +1090,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
 .t-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.25);
+  background: rgba(106,108,81,0.3);
   transition: background-color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
   border: none;
   touch-action: manipulation;
