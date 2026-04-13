@@ -639,7 +639,7 @@ p  { font-size: clamp(0.9rem, 1.2vw, 1rem); color: var(--mid); line-height: 1.8;
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 150px var(--gutter) 0;
+  padding: 190px var(--gutter) 0;
   max-width: 1000px;
 }
 
