@@ -803,6 +803,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   flex-direction: row;
   align-items: center;
   gap: 1rem;
+  z-index: 3;
   opacity: 0;
   animation: fadeUpIn 1s 1.1s var(--ease-out) forwards;
 }
