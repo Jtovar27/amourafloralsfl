@@ -830,6 +830,17 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 }
 .hero-scroll:hover { color: var(--peach); }
 
+/* ─── Desktop hero: lower content + hide scroll indicator ── */
+@media (min-width: 769px) {
+  .hero {
+    align-items: flex-start;
+  }
+  .hero-content {
+    padding-top: clamp(240px, 30vh, 360px);
+  }
+  .hero-scroll { display: none; }
+}
+
 /* Hero split line decorations */
 .hero-line {
   position: absolute;
