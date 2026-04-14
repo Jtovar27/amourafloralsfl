@@ -708,7 +708,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   position: absolute;
   inset: 0;
   background-image: url('hero-bg.jpg');
-  background-size: cover;
+  background-size: 115%;
   background-position: center 55%;
   transform: scale(1.06);
   will-change: transform;
@@ -717,6 +717,12 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 .hero-overlay {
   position: absolute;
   inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(62, 65, 48, 0.35) 0%,
+    rgba(62, 65, 48, 0.15) 50%,
+    rgba(62, 65, 48, 0.38) 100%
+  );
   z-index: 1;
 }
 
@@ -725,6 +731,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   content: '';
   position: absolute;
   inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(62,65,48,0.22) 100%);
   z-index: 1;
   pointer-events: none;
 }
@@ -2324,6 +2331,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   .hero-title { font-size: clamp(2.6rem, 12vw, 4rem); line-height: 1.0; }
   .hero-cta-wrap { flex-direction: column; gap: 0.8rem; }
   .hero-content { padding-top: 165px; }
+  .hero-socials { bottom: 5rem; }
   .page-banner { height: clamp(380px, 80vw, 500px); align-items: flex-start; }
   .page-banner-content { padding-top: calc(var(--ann-h) + 110px); }
   .page-banner-title { font-size: clamp(2.2rem, 9vw, 3rem); }
