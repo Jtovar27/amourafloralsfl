@@ -275,6 +275,11 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 
 .section-header .section-label::before { display: none; }
 
+.page-banner-content .section-label {
+  padding-left: 0;
+}
+.page-banner-content .section-label::before { display: none; }
+
 /* ── Buttons ─────────────────────────────────────────── */
 .btn {
   display: inline-block;
