@@ -339,6 +339,14 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   const params = new URLSearchParams(window.location.search);
   const f = params.get('filter');
   if (!f) return;
+
+  // Pre-hide non-matching cards immediately so they never flash on screen
+  if (f !== 'all') {
+    document.querySelectorAll('.product-card').forEach(card => {
+      if (card.dataset.category !== f) card.classList.add('hidden');
+    });
+  }
+
   const target = document.querySelector(`.filter-btn[data-filter="${f}"]`);
   if (target) target.click();
 })();
