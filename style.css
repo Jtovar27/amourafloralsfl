@@ -707,7 +707,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=85');
+  background-image: url('hero-bg.jpg');
   background-size: cover;
   background-position: center 30%;
   transform: scale(1.06);
