@@ -709,7 +709,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   inset: 0;
   background-image: url('hero-bg.jpg');
   background-size: cover;
-  background-position: center 30%;
+  background-position: center 55%;
   transform: scale(1.06);
   will-change: transform;
 }
