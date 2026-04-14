@@ -827,7 +827,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 
 .hero-scroll {
   position: absolute;
-  bottom: 7rem;
+  bottom: 5rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
