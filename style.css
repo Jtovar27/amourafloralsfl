@@ -836,7 +836,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
     align-items: flex-start;
   }
   .hero-content {
-    padding-top: clamp(240px, 30vh, 360px);
+    padding-top: clamp(200px, 22vh, 250px);
   }
   .hero-scroll { display: none; }
 }
