@@ -1966,7 +1966,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
    FOOTER — Elevated
 ═══════════════════════════════════════════════════════ */
 .site-footer {
-  background: var(--ink);
+  background: var(--sage);
   color: rgba(255,255,255,0.7);
   padding: var(--section-py) var(--gutter) 0;
 }
