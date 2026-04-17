@@ -74,7 +74,7 @@ mobileMenu.innerHTML = `
     </svg>
   </button>
   <div class="mobile-menu-top">
-    <img src="amoura_logo_transparent_clean.png" alt="Amoura Florals" class="mobile-menu-logo" />
+    <img src="assets/images/amoura_logo_transparent_clean.png" alt="Amoura Florals" class="mobile-menu-logo" />
   </div>
   <div class="mobile-menu-links">
     <a href="index.html">Home</a>
@@ -296,8 +296,7 @@ document.querySelectorAll('.quick-add').forEach(btn => {
 /* ── Checkout ──────────────────────────────────────── */
 if (checkoutBtn) {
   checkoutBtn.addEventListener('click', () => {
-    showToast('Connecting to Instagram…');
-    setTimeout(() => window.open('https://www.instagram.com/amourafloralsfl/', '_blank'), 900);
+    window.location.href = 'checkout.html';
   });
 }
 

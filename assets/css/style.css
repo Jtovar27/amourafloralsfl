@@ -707,7 +707,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('hero-bg.jpg');
+  background-image: url('../images/hero-bg.jpg');
   background-size: 115%;
   background-position: center 55%;
   transform: scale(1.06);
@@ -1734,6 +1734,20 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   margin-bottom: 1.8rem;
   font-weight: 300;
 }
+
+.catalog-cta-link {
+  display: inline-block;
+  font-size: .88rem;
+  font-family: var(--ff-sans);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--sage-light);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: color .2s, opacity .2s;
+}
+.catalog-cta-link:hover { opacity: .7; }
 
 /* ═══════════════════════════════════════════════════════
    ABOUT PAGE

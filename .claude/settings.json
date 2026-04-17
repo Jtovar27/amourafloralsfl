@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push:*)",
+      "Bash(vercel inspect:*)",
+      "Bash(vercel logs:*)",
+      "mcp__plugin_vercel_vercel__get_deployment_build_logs",
+      "mcp__plugin_vercel_vercel__get_deployment",
+      "Bash(vercel deploy:*)",
+      "mcp__plugin_vercel_vercel__get_project",
+      "Bash(vercel --scope jtovar27s-projects)"
+    ]
+  }
+}

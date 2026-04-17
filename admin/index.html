@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Amoura Florals</title>
+  <link rel="stylesheet" href="/admin/css/admin.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-title">Amoura Florals</div>
+      <div class="login-logo-sub">Admin Panel</div>
+    </div>
+    <h2 class="login-title">Sign In</h2>
+    <p class="login-sub">Enter your admin credentials to continue.</p>
+
+    <div class="login-error" id="login-error"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" required placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="••••••••" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.7rem" id="login-btn">
+        Sign In
+      </button>
+    </form>
+
+    <p class="login-footer">Access restricted to authorized administrators only.</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+  (async () => {
+    // If already logged in as admin, redirect to dashboard
+    let sb;
+    try {
+      const cfg = await fetch('/api/admin/config').then(r => r.json());
+      sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+        auth: { persistSession: true, storageKey: 'amoura_admin_session' },
+      });
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        const check = await fetch('/api/admin/dashboard', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (check.ok) { window.location.href = '/admin/dashboard'; return; }
+      }
+    } catch {}
+
+    const form     = document.getElementById('login-form');
+    const errorEl  = document.getElementById('login-error');
+    const loginBtn = document.getElementById('login-btn');
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('show');
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errorEl.classList.remove('show');
+      loginBtn.textContent = 'Signing in…';
+      loginBtn.disabled = true;
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const cfg = await fetch('/api/admin/config').then(r => r.json());
+        if (!sb) {
+          sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+            auth: { persistSession: true, storageKey: 'amoura_admin_session' },
+          });
+        }
+
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) { showError(error.message); return; }
+
+        // Verify admin role
+        const check = await fetch('/api/admin/dashboard', {
+          headers: { Authorization: `Bearer ${data.session.access_token}` },
+        });
+
+        if (check.status === 403) {
+          await sb.auth.signOut();
+          showError('Access denied. Your account does not have admin privileges.');
+          return;
+        }
+        if (!check.ok) {
+          showError('Login succeeded but could not verify admin access. Try again.');
+          return;
+        }
+
+        window.location.href = '/admin/dashboard';
+      } catch (err) {
+        showError('An unexpected error occurred. Please try again.');
+        console.error(err);
+      } finally {
+        loginBtn.textContent = 'Sign In';
+        loginBtn.disabled = false;
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
