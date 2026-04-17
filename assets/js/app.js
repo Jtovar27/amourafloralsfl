@@ -372,31 +372,25 @@ document.querySelectorAll('.faq-question').forEach(btn => {
   const track = document.querySelector('.testimonials-track');
   if (!track) return;
 
-  const cards    = track.querySelectorAll('.testimonial-card');
-  const dots     = document.querySelectorAll('.t-dot');
-  let current    = 0;
+  const cards  = track.querySelectorAll('.testimonial-card');
+  const prev   = document.querySelector('.t-prev');
+  const next   = document.querySelector('.t-next');
+  let current  = 0;
   let timer;
   const INTERVAL = 4800;
 
   function goTo(index) {
     cards[current].setAttribute('aria-hidden', 'true');
-    if (dots[current]) {
-      dots[current].classList.remove('active');
-      dots[current].setAttribute('aria-selected', 'false');
-    }
     current = ((index % cards.length) + cards.length) % cards.length;
     track.style.transform = `translateX(-${current * 100}%)`;
     cards[current].setAttribute('aria-hidden', 'false');
-    if (dots[current]) {
-      dots[current].classList.add('active');
-      dots[current].setAttribute('aria-selected', 'true');
-    }
   }
 
   function startAuto() { timer = setInterval(() => goTo(current + 1), INTERVAL); }
   function resetAuto()  { clearInterval(timer); startAuto(); }
 
-  dots.forEach((dot, i) => dot.addEventListener('click', () => { goTo(i); resetAuto(); }));
+  if (prev) prev.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
+  if (next) next.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
 
   // Touch/swipe
   let touchStartX = 0;
