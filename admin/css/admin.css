@@ -184,6 +184,14 @@ body {
   text-decoration: none;
 }
 .btn:active { transform: scale(.98); }
+.btn:focus-visible,
+.btn-icon:focus-visible,
+.modal-close:focus-visible,
+.sb-link:focus-visible,
+.tab-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hov); }
 .btn-secondary { background: var(--border); color: var(--text); }
@@ -377,6 +385,10 @@ textarea { resize: vertical; min-height: 80px; }
 }
 .modal-lg { max-width: 720px; }
 @keyframes modalIn { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .modal { animation: none !important; }
+  .btn, .btn-icon { transition: none !important; }
+}
 .modal-header {
   padding: 1.25rem 1.5rem 1rem;
   border-bottom: 1px solid var(--border);

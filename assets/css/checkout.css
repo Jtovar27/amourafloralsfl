@@ -137,6 +137,9 @@
 .form-group select:focus,
 .form-group textarea:focus {
   border-bottom-color: var(--sage);
+  /* Visible focus ring for keyboard / accessibility users */
+  outline: 2px solid rgba(129, 130, 99, 0.35);
+  outline-offset: 2px;
 }
 
 .form-group input.has-error,
@@ -147,16 +150,26 @@
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #c0bbb5;
+  color: #8a8580;
   font-style: italic;
 }
 
-/* Date input reset */
+/* Date input — works on Chrome/Safari (webkit-calendar-picker-indicator)
+   and Firefox (which renders its own indicator we can't directly style;
+   we just ensure adequate spacing and a sage hover so the icon is obvious). */
 .form-group input[type="date"] {
   color: var(--dark);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23818263' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 28px;
 }
 .form-group input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0.5;
+  opacity: 0;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
 }
 

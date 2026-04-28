@@ -17,6 +17,18 @@ async function initMedia() {
   setupUpload();
 
   document.getElementById('btn-refresh-media').addEventListener('click', loadMedia);
+
+  // Event delegation for copy / delete on media tiles
+  document.getElementById('media-grid').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const item = btn.closest('.media-item');
+    if (!item) return;
+    const name = item.dataset.name;
+    const url  = item.dataset.url;
+    if (btn.dataset.action === 'copy')   return copyUrl(url);
+    if (btn.dataset.action === 'delete') return deleteFile(name);
+  });
 }
 
 async function loadMedia() {
@@ -42,18 +54,26 @@ async function loadMedia() {
     }
 
     grid.innerHTML = files.map(f => `
-      <div class="media-item" data-name="${f.name}">
-        <img src="${f.url}" alt="${f.name}" loading="lazy" onerror="this.style.background='var(--bg)';this.style.height='120px'" />
+      <div class="media-item" data-name="${escapeHtml(f.name)}" data-url="${escapeHtml(f.url)}">
+        <img src="${escapeHtml(f.url)}" alt="${escapeHtml(f.name)}" loading="lazy" />
         <div class="media-item-info">
-          <div class="media-item-name" title="${f.name}">${f.name}</div>
+          <div class="media-item-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
           <div class="media-item-size">${formatBytes(f.size)}</div>
         </div>
         <div class="media-item-actions">
-          <button onclick="copyUrl('${f.url}')">Copy URL</button>
-          <button onclick="deleteFile('${f.name}')" style="color:#ef4444">Delete</button>
+          <button data-action="copy">Copy URL</button>
+          <button data-action="delete" style="color:#ef4444">Delete</button>
         </div>
       </div>
     `).join('');
+
+    // Image fallback (was inline onerror — moved here so we can keep CSP-compatible code)
+    grid.querySelectorAll('img').forEach(img => {
+      img.addEventListener('error', () => {
+        img.style.background = 'var(--bg)';
+        img.style.height = '120px';
+      }, { once: true });
+    });
 
   } catch (err) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>Failed to load media: ${err.message}</p></div>`;
@@ -82,11 +102,13 @@ function setupUpload() {
   });
 
   async function handleFiles(files) {
-    const allowed = ['image/jpeg','image/png','image/webp','image/gif','image/svg+xml'];
+    // SVG is intentionally excluded — SVGs can embed <script> and would execute
+    // on any tab that opens the file URL directly.
+    const allowed = ['image/jpeg','image/png','image/webp','image/gif'];
     const valid   = files.filter(f => allowed.includes(f.type) && f.size <= 5 * 1024 * 1024);
 
     if (!valid.length) {
-      showToast('No valid images selected (JPEG/PNG/WebP/GIF/SVG, max 5 MB).', 'error');
+      showToast('No valid images selected (JPEG, PNG, WebP, or GIF — max 5 MB each).', 'error');
       return;
     }
 

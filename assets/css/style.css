@@ -92,6 +92,9 @@
 /* Nav offset when bar is visible */
 body.has-ann-bar #site-header { top: var(--ann-h); }
 
+/* Inner pages without a hero need top spacing equal to header (+ ann bar) */
+body.has-ann-bar.inner-page { padding-top: var(--ann-h); }
+
 /* Mobile: hide Spanish, keep English only */
 @media (max-width: 640px) {
   .ann-text.ann-es,
@@ -100,7 +103,15 @@ body.has-ann-bar #site-header { top: var(--ann-h); }
 }
 
 /* ── Custom Cursor ──────────────────────────────────── */
-* { cursor: none !important; }
+/*
+  Hide the native cursor only on devices that have a fine pointer (mouse/trackpad).
+  Touch and pen devices skip this entirely so the system cursor remains usable
+  if JS fails to load. We also keep accessibility targets clickable by leaving
+  form controls and buttons with their default cursor where users expect them.
+*/
+@media (pointer: fine) {
+  * { cursor: none; }
+}
 
 #cursor-dot {
   position: fixed;
@@ -140,8 +151,13 @@ body:has(button:hover) #cursor-ring {
 }
 
 @media (pointer: coarse) {
-  * { cursor: auto !important; }
   #cursor-dot, #cursor-ring { display: none; }
+}
+
+/* Respect users with reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  #cursor-dot, #cursor-ring { display: none; }
+  * { cursor: auto !important; }
 }
 
 /* ── CSS Variables ──────────────────────────────────── */
@@ -301,6 +317,19 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 }
 
 .btn:active { transform: scale(0.97); }
+
+/* Keyboard-only focus ring — kept off on mouse click */
+.btn:focus-visible,
+.nav-link:focus-visible,
+.cart-btn:focus-visible,
+.cart-close:focus-visible,
+.filter-btn:focus-visible,
+.faq-question:focus-visible,
+.t-arrow:focus-visible,
+.ann-close:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 3px;
+}
 
 .btn::after {
   content: '';
@@ -1370,6 +1399,21 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 .contact-success.show {
   display: block;
 }
+
+.contact-error {
+  display: none;
+  font-family: var(--ff-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: #b54e3a;
+  text-align: center;
+  padding: .85rem 1rem;
+  background: rgba(192, 99, 90, 0.08);
+  border: 1px solid rgba(192, 99, 90, 0.4);
+  margin-top: .75rem;
+}
+.contact-error.show { display: block; }
+.newsletter-success.is-error { color: #b54e3a; }
 
 .contact-info {
   display: flex;

@@ -255,27 +255,39 @@ function renderCart() {
   cart.forEach(item => {
     const el = document.createElement('div');
     el.className = 'cart-item';
-    el.innerHTML = `
-      <div style="background:var(--off-white);aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;width:80px;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sage-light)" stroke-width="1.2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-      </div>
-      <div>
-        <p class="cart-item-name">${item.name}</p>
-        <p class="cart-item-price">$${item.price.toFixed(2)}</p>
-        <div class="cart-item-qty">
-          <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
-          <span class="qty-num">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
-        </div>
-      </div>
-      <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Remove ${item.name}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    `;
+    el.dataset.cartId = item.id;
+    // Build via DOM APIs so admin-controlled product names cannot inject HTML
+    const thumb = document.createElement('div');
+    thumb.style.cssText = 'background:var(--off-white);aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;width:80px;';
+    thumb.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sage-light)" stroke-width="1.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+
+    const info = document.createElement('div');
+    const name = document.createElement('p');
+    name.className = 'cart-item-name';
+    name.textContent = item.name;
+    const price = document.createElement('p');
+    price.className = 'cart-item-price';
+    price.textContent = `$${item.price.toFixed(2)}`;
+    const qty = document.createElement('div');
+    qty.className = 'cart-item-qty';
+    qty.innerHTML =
+      '<button class="qty-btn" data-cart-action="dec" type="button">−</button>' +
+      `<span class="qty-num">${item.qty}</span>` +
+      '<button class="qty-btn" data-cart-action="inc" type="button">+</button>';
+    info.appendChild(name);
+    info.appendChild(price);
+    info.appendChild(qty);
+
+    const remove = document.createElement('button');
+    remove.className = 'cart-item-remove';
+    remove.dataset.cartAction = 'remove';
+    remove.type = 'button';
+    remove.setAttribute('aria-label', `Remove ${item.name}`);
+    remove.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+    el.appendChild(thumb);
+    el.appendChild(info);
+    el.appendChild(remove);
     cartItems.appendChild(el);
   });
 
@@ -285,13 +297,35 @@ function renderCart() {
 }
 
 /* ── Quick-add delegation ──────────────────────────── */
-document.querySelectorAll('.quick-add').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    const { id, name, price } = btn.dataset;
-    addToCart(id, name, price);
-  });
+// Uses event delegation so dynamically-injected cards (catalog.js) work too.
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.quick-add');
+  if (!btn) return;
+  e.stopPropagation();
+  const { id, name, price } = btn.dataset;
+  addToCart(id, name, price);
 });
+
+/* ── Cart item delegation ──────────────────────────── */
+// Replaces inline onclick="changeQty(...)" / onclick="removeFromCart(...)"
+// so cart product names (admin-controlled) cannot break out of attribute context.
+if (cartItems) {
+  cartItems.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-cart-action]');
+    if (!btn) return;
+    const row = btn.closest('.cart-item');
+    if (!row) return;
+    const id = row.dataset.cartId;
+    switch (btn.dataset.cartAction) {
+      case 'inc':    return changeQty(id, +1);
+      case 'dec':    return changeQty(id, -1);
+      case 'remove': return removeFromCart(id);
+    }
+  });
+}
+
+// No-op listener — delegation already handles catalog:rendered cards.
+document.addEventListener('catalog:rendered', function () {});
 
 /* ── Checkout ──────────────────────────────────────── */
 if (checkoutBtn) {
@@ -311,26 +345,36 @@ function showToast(msg) {
 }
 
 /* ── Catalog filters ───────────────────────────────── */
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const filter = btn.dataset.filter;
-    let delay = 0;
-    document.querySelectorAll('.product-card').forEach(card => {
-      if (filter === 'all' || card.dataset.category === filter) {
-        card.classList.remove('hidden');
-        card.style.animationDelay = `${delay * 60}ms`;
-        card.style.animation = 'none';
-        requestAnimationFrame(() => {
-          card.style.animation = 'fadeUp 0.45s var(--ease-out) both';
-        });
-        delay++;
-      } else {
-        card.classList.add('hidden');
-      }
-    });
+function applyFilter(filter) {
+  let delay = 0;
+  document.querySelectorAll('.product-card').forEach(card => {
+    if (filter === 'all' || card.dataset.category === filter) {
+      card.classList.remove('hidden');
+      card.style.animationDelay = `${delay * 60}ms`;
+      card.style.animation = 'none';
+      requestAnimationFrame(() => {
+        card.style.animation = 'fadeUp 0.45s var(--ease-out) both';
+      });
+      delay++;
+    } else {
+      card.classList.add('hidden');
+    }
   });
+}
+
+// Event delegation handles both static and dynamically-injected filter buttons.
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn[data-filter]');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter(btn.dataset.filter);
+});
+
+// Re-apply the active filter after catalog.js replaces the grid.
+document.addEventListener('catalog:rendered', () => {
+  const active = document.querySelector('.filter-btn.active[data-filter]');
+  if (active) applyFilter(active.dataset.filter);
 });
 
 /* ── Auto-apply filter from URL param (?filter=xxx) ── */
@@ -372,35 +416,55 @@ document.querySelectorAll('.faq-question').forEach(btn => {
   const track = document.querySelector('.testimonials-track');
   if (!track) return;
 
-  const cards  = track.querySelectorAll('.testimonial-card');
-  const prev   = document.querySelector('.t-prev');
-  const next   = document.querySelector('.t-next');
-  let current  = 0;
-  let timer;
+  const prev = document.querySelector('.t-prev');
+  const next = document.querySelector('.t-next');
   const INTERVAL = 4800;
 
+  let current = 0;
+  let timer;
+  let cards = [];
+  let bound = false;
+
+  function refresh() {
+    cards = Array.from(track.querySelectorAll('.testimonial-card'));
+    current = 0;
+    if (cards.length) {
+      cards.forEach((c, i) => c.setAttribute('aria-hidden', i === 0 ? 'false' : 'true'));
+      track.style.transform = 'translateX(0)';
+    }
+  }
+
   function goTo(index) {
-    cards[current].setAttribute('aria-hidden', 'true');
+    if (!cards.length) return;
+    if (cards[current]) cards[current].setAttribute('aria-hidden', 'true');
     current = ((index % cards.length) + cards.length) % cards.length;
     track.style.transform = `translateX(-${current * 100}%)`;
     cards[current].setAttribute('aria-hidden', 'false');
   }
 
-  function startAuto() { timer = setInterval(() => goTo(current + 1), INTERVAL); }
-  function resetAuto()  { clearInterval(timer); startAuto(); }
+  function stopAuto()  { if (timer) { clearInterval(timer); timer = null; } }
+  function startAuto() { stopAuto(); if (cards.length > 1) timer = setInterval(() => goTo(current + 1), INTERVAL); }
+  function resetAuto() { stopAuto(); startAuto(); }
 
-  if (prev) prev.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
-  if (next) next.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
+  function bindOnce() {
+    if (bound) return;
+    if (prev) prev.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
+    if (next) next.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
 
-  // Touch/swipe
-  let touchStartX = 0;
-  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 40) { goTo(dx < 0 ? current + 1 : current - 1); resetAuto(); }
-  });
+    let touchStartX = 0;
+    track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) { goTo(dx < 0 ? current + 1 : current - 1); resetAuto(); }
+    });
+    bound = true;
+  }
 
-  startAuto();
+  function init() { refresh(); bindOnce(); startAuto(); }
+
+  init();
+  // Re-init when dynamic-content.js replaces cards.
+  document.addEventListener('testimonials:rendered', init);
 })();
 
 /* ── Scroll Reveal (data-reveal) ───────────────────── */
@@ -486,15 +550,21 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
 })();
 
 /* ── Newsletter Form ───────────────────────────────── */
+// POSTs to /api/newsletter — server stores the address in newsletter_subscribers
+// (idempotent re-subscribe). On API failure the user is told the request couldn't
+// be saved instead of being silently lied to with a fake success.
 (function () {
   const form    = document.getElementById('newsletter-form');
   const success = document.getElementById('newsletter-success');
   if (!form) return;
 
   const input = form.querySelector('input[type="email"]');
+  let submitting = false;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (submitting) return;
+
     const email = input.value.trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       input.style.borderBottom = '1px solid #c0635a';
@@ -502,17 +572,51 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
       return;
     }
     input.style.borderBottom = '';
-    form.querySelector('.newsletter-field').style.display = 'none';
-    if (success) success.classList.add('show');
+    submitting = true;
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, source: window.location.pathname.replace(/^\//, '') || 'home' }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        input.style.borderBottom = '1px solid #c0635a';
+        if (success) {
+          success.textContent = data.error || "Couldn't save your email. Please try again.";
+          success.classList.add('show', 'is-error');
+        }
+        return;
+      }
+      form.querySelector('.newsletter-field').style.display = 'none';
+      if (success) {
+        success.textContent = 'Thank you for subscribing!';
+        success.classList.remove('is-error');
+        success.classList.add('show');
+      }
+    } catch (err) {
+      input.style.borderBottom = '1px solid #c0635a';
+      if (success) {
+        success.textContent = 'Network error — please try again.';
+        success.classList.add('show', 'is-error');
+      }
+    } finally {
+      submitting = false;
+    }
   });
 
   input.addEventListener('input', () => { input.style.borderBottom = ''; });
 })();
 
 /* ── Contact Form ──────────────────────────────────── */
+// POSTs to /api/contact — server validates inputs, persists to contact_messages,
+// and emails ADMIN_EMAIL via Resend. The DB row is the source of truth so a mail
+// failure does not lose the message.
 (function () {
   const form    = document.getElementById('contact-form');
   const success = document.getElementById('contact-success');
+  const errorEl = document.getElementById('contact-error');
   if (!form) return;
 
   function validate() {
@@ -534,34 +638,58 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
     el.addEventListener('input', () => el.classList.remove('invalid'));
   });
 
-  form.addEventListener('submit', e => {
+  let submitting = false;
+
+  form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (submitting) return;
     if (!validate()) return;
 
     const btn = form.querySelector('.contact-btn');
-    btn.textContent = 'Sending…';
-    btn.disabled = true;
+    submitting       = true;
+    btn.textContent  = 'Sending…';
+    btn.disabled     = true;
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.remove('show'); }
 
-    // Build mailto link as the delivery mechanism (no backend required)
-    const first   = form.first_name.value.trim();
-    const last    = form.last_name.value.trim();
-    const phone   = form.phone.value.trim();
-    const email   = form.email.value.trim();
-    const message = form.message.value.trim();
+    const payload = {
+      first_name: form.first_name.value.trim(),
+      last_name:  form.last_name?.value.trim()  || '',
+      email:      form.email.value.trim(),
+      phone:      form.phone?.value.trim()      || '',
+      message:    form.message.value.trim(),
+    };
 
-    const body = `Name: ${first} ${last}\nPhone: ${phone || 'N/A'}\nEmail: ${email}\n\nMessage:\n${message}`;
-    const mailto = `mailto:amourafloralsco@gmail.com?subject=${encodeURIComponent('Contact Form — ' + first + ' ' + last)}&body=${encodeURIComponent(body)}`;
+    try {
+      const res = await fetch('/api/contact', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
 
-    window.location.href = mailto;
+      if (!res.ok) {
+        if (errorEl) {
+          errorEl.textContent = data.error || 'Could not send your message. Please try again.';
+          errorEl.classList.add('show');
+        }
+        return;
+      }
 
-    // Show success state after short delay
-    setTimeout(() => {
       form.reset();
+      if (success) {
+        success.classList.add('show');
+        setTimeout(() => success.classList.remove('show'), 5000);
+      }
+    } catch (err) {
+      if (errorEl) {
+        errorEl.textContent = 'Network error — please try again.';
+        errorEl.classList.add('show');
+      }
+    } finally {
+      submitting      = false;
       btn.textContent = 'Send Message';
-      btn.disabled = false;
-      if (success) success.classList.add('show');
-      setTimeout(() => success && success.classList.remove('show'), 5000);
-    }, 800);
+      btn.disabled    = false;
+    }
   });
 })();
 

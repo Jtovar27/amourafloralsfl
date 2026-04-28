@@ -3,8 +3,10 @@ const { getSupabase } = require('../lib/supabase');
 const { verifyAdmin, setCors } = require('./_verify');
 
 const BUCKET = 'media';
-// Allowed MIME types for uploads
-const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif','image/svg+xml'];
+// Allowed MIME types for uploads (referenced by docs / future server-side
+// upload path). SVG is intentionally excluded because SVG files can embed
+// <script> that would execute when the file URL is opened directly.
+const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 module.exports = async function handler(req, res) {

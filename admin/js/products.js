@@ -39,36 +39,52 @@ function renderTable() {
   }
 
   tbody.innerHTML = filteredProducts.map(p => `
-    <tr>
+    <tr data-product-id="${escapeHtml(p.id)}">
       <td>
         ${p.image_url
-          ? `<img class="product-thumb" src="${p.image_url}" alt="${p.name}" loading="lazy" />`
+          ? `<img class="product-thumb" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" loading="lazy" />`
           : `<div class="product-thumb-placeholder"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`}
       </td>
       <td>
-        <div style="font-weight:600;font-size:.85rem">${p.name}</div>
-        ${p.description ? `<div style="font-size:.75rem;color:var(--muted);margin-top:2px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.description}</div>` : ''}
+        <div style="font-weight:600;font-size:.85rem">${escapeHtml(p.name)}</div>
+        ${p.description ? `<div style="font-size:.75rem;color:var(--muted);margin-top:2px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(p.description)}</div>` : ''}
       </td>
-      <td><span class="badge badge-gray">${p.category}</span></td>
+      <td><span class="badge badge-gray">${escapeHtml(p.category)}</span></td>
       <td>${formatPrice(p.price)}</td>
       <td>${p.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}</td>
       <td>${p.featured ? '<span class="badge badge-blue">Featured</span>' : '<span style="color:var(--muted);font-size:.8rem">—</span>'}</td>
-      <td style="color:var(--muted);font-size:.82rem">${p.sort_order}</td>
+      <td style="color:var(--muted);font-size:.82rem">${escapeHtml(p.sort_order)}</td>
       <td class="actions">
-        <button class="btn-icon" title="Edit" onclick="openEditModal('${p.id}')">
+        <button class="btn-icon" title="Edit" data-action="edit">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
-        <button class="btn-icon" title="${p.active ? 'Deactivate' : 'Activate'}" onclick="toggleActive('${p.id}', ${p.active})">
+        <button class="btn-icon" title="${p.active ? 'Deactivate' : 'Activate'}" data-action="toggle" data-active="${p.active ? '1' : '0'}">
           ${p.active
             ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
             : `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`}
         </button>
-        <button class="btn-icon" title="Delete" onclick="deleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')">
+        <button class="btn-icon" title="Delete" data-action="delete">
           <svg width="14" height="14" fill="none" stroke="#ef4444" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         </button>
       </td>
     </tr>
   `).join('');
+}
+
+function handleProductAction(e) {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const row = btn.closest('tr[data-product-id]');
+  if (!row) return;
+  const id = row.dataset.productId;
+  const product = allProducts.find(p => p.id === id);
+  if (!product) return;
+
+  switch (btn.dataset.action) {
+    case 'edit':   return openEditModal(id);
+    case 'toggle': return toggleActive(id, product.active);
+    case 'delete': return deleteProduct(id, product.name);
+  }
 }
 
 function openAddModal() {
@@ -206,8 +222,8 @@ async function deleteProduct(id, name) {
   searchInput.addEventListener('input',    debounce(applyFilter, 280));
   filterCategory.addEventListener('change', applyFilter);
 
-  // Expose for inline onclick
-  window.openEditModal  = openEditModal;
-  window.toggleActive   = toggleActive;
-  window.deleteProduct  = deleteProduct;
+  // Event delegation: row action buttons (edit / toggle active / delete).
+  // Replaces inline onclick="…" — values like product names are user-controlled
+  // and unsafe to interpolate into onclick attributes.
+  document.getElementById('products-tbody').addEventListener('click', handleProductAction);
 })();

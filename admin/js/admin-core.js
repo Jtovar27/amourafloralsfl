@@ -180,6 +180,16 @@ function debounce(fn, ms) {
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
 
+// ── HTML / attribute escaping ─────────────────────────────────────────────────
+// User-controlled values (product names, customer names, FAQ text, testimonial
+// content, etc.) MUST be escaped before being interpolated into a template
+// literal that ends up in innerHTML. textContent is preferred where possible.
+const _ESCAPE_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  return String(value).replace(/[&<>"']/g, ch => _ESCAPE_MAP[ch]);
+}
+
 // ── Order status badge ────────────────────────────────────────────────────────
 const STATUS_CLASS = {
   pending:    'badge-yellow',
@@ -193,7 +203,7 @@ const STATUS_CLASS = {
 };
 function statusBadge(status) {
   const cls = STATUS_CLASS[status] || 'badge-gray';
-  return `<span class="badge ${cls}">${status}</span>`;
+  return `<span class="badge ${cls}">${escapeHtml(status)}</span>`;
 }
 
 // ── Sidebar mobile toggle ─────────────────────────────────────────────────────
@@ -232,3 +242,4 @@ window.formatDate     = formatDate;
 window.formatDateTime = formatDateTime;
 window.debounce       = debounce;
 window.statusBadge    = statusBadge;
+window.escapeHtml     = escapeHtml;

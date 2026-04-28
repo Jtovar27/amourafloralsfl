@@ -1,12 +1,15 @@
 'use strict';
-const { validateAndPriceItems } = require('./lib/products');
-const { getSupabase }           = require('./lib/supabase');
-const { getStripe }             = require('./lib/stripe');
+const { validateAndPriceItems }    = require('./lib/products');
+const { getSupabase }              = require('./lib/supabase');
+const { getStripe }                = require('./lib/stripe');
+const { checkRateLimit, getClientIp } = require('./lib/rate-limit');
 
 // Florida sales tax — verify your exact rate with a tax professional.
 // Override via TAX_RATE env var (e.g. "0.065" for 6.5%).
 const TAX_RATE               = parseFloat(process.env.TAX_RATE || '0.07');
 const SHIPPING_DELIVERY_CENTS = 1500; // $15.00 flat local delivery
+const CHECKOUT_RATE_LIMIT     = 10;   // attempts per IP per window
+const CHECKOUT_RATE_WINDOW_S  = 300;  // 5 minutes
 
 function generateOrderNumber() {
   const date   = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -66,6 +69,17 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST')    { return jsonError(res, 405, 'Method not allowed.'); }
+
+  // Rate limit: protects against checkout/order spam from a single IP. The
+  // limit is generous enough that genuine customers retrying a failed payment
+  // won't hit it; an abuser hammering the endpoint will. DB-backed so it works
+  // across serverless instances. See api/lib/rate-limit.js for fail-open notes.
+  const ip = getClientIp(req);
+  const allowed = await checkRateLimit(`checkout:${ip}`, CHECKOUT_RATE_LIMIT, CHECKOUT_RATE_WINDOW_S);
+  if (!allowed) {
+    res.setHeader('Retry-After', String(CHECKOUT_RATE_WINDOW_S));
+    return jsonError(res, 429, 'Too many checkout attempts. Please wait a few minutes and try again.');
+  }
 
   // Parse body
   let body;

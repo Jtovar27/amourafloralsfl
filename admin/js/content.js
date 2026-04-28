@@ -38,20 +38,33 @@ function renderFaqs() {
   }
 
   tbody.innerHTML = allFaqs.map(f => `
-    <tr>
-      <td style="color:var(--muted);font-size:.82rem">${f.sort_order}</td>
-      <td style="font-size:.85rem;font-weight:500;max-width:400px">${f.question}</td>
+    <tr data-faq-id="${escapeHtml(f.id)}">
+      <td style="color:var(--muted);font-size:.82rem">${escapeHtml(f.sort_order)}</td>
+      <td style="font-size:.85rem;font-weight:500;max-width:400px">${escapeHtml(f.question)}</td>
       <td>${f.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Hidden</span>'}</td>
       <td class="actions">
-        <button class="btn-icon" title="Edit" onclick="openFaqEdit('${f.id}')">
+        <button class="btn-icon" title="Edit" data-action="edit">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
-        <button class="btn-icon" title="Delete" onclick="deleteFaq('${f.id}', '${f.question.substring(0,40).replace(/'/g,"\\'")}…')">
+        <button class="btn-icon" title="Delete" data-action="delete">
           <svg width="14" height="14" fill="none" stroke="#ef4444" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         </button>
       </td>
     </tr>
   `).join('');
+}
+
+function handleFaqAction(e) {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const row = btn.closest('tr[data-faq-id]');
+  if (!row) return;
+  const id  = row.dataset.faqId;
+  const faq = allFaqs.find(f => f.id === id);
+  if (!faq) return;
+
+  if (btn.dataset.action === 'edit')   return openFaqEdit(id);
+  if (btn.dataset.action === 'delete') return deleteFaq(id, faq.question.substring(0, 40) + '…');
 }
 
 function openFaqAdd() {
@@ -155,25 +168,38 @@ function renderTestimonials() {
   }
 
   tbody.innerHTML = allTestimonials.map(t => `
-    <tr>
-      <td style="color:var(--muted);font-size:.82rem">${t.sort_order}</td>
+    <tr data-testimonial-id="${escapeHtml(t.id)}">
+      <td style="color:var(--muted);font-size:.82rem">${escapeHtml(t.sort_order)}</td>
       <td>
-        <div style="font-weight:600;font-size:.85rem">${t.author_name}</div>
-        ${t.author_label ? `<div style="font-size:.75rem;color:var(--muted)">${t.author_label}</div>` : ''}
+        <div style="font-weight:600;font-size:.85rem">${escapeHtml(t.author_name)}</div>
+        ${t.author_label ? `<div style="font-size:.75rem;color:var(--muted)">${escapeHtml(t.author_label)}</div>` : ''}
       </td>
-      <td style="font-size:.82rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">${t.content}</td>
-      <td>${'⭐'.repeat(t.rating)}</td>
+      <td style="font-size:.82rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">${escapeHtml(t.content)}</td>
+      <td>${'⭐'.repeat(Math.max(0, Math.min(5, t.rating)))}</td>
       <td>${t.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Hidden</span>'}</td>
       <td class="actions">
-        <button class="btn-icon" title="Edit" onclick="openTestimonialEdit('${t.id}')">
+        <button class="btn-icon" title="Edit" data-action="edit">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
-        <button class="btn-icon" title="Delete" onclick="deleteTestimonial('${t.id}', '${t.author_name.replace(/'/g,"\\'")}')">
+        <button class="btn-icon" title="Delete" data-action="delete">
           <svg width="14" height="14" fill="none" stroke="#ef4444" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         </button>
       </td>
     </tr>
   `).join('');
+}
+
+function handleTestimonialAction(e) {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const row = btn.closest('tr[data-testimonial-id]');
+  if (!row) return;
+  const id = row.dataset.testimonialId;
+  const t  = allTestimonials.find(x => x.id === id);
+  if (!t) return;
+
+  if (btn.dataset.action === 'edit')   return openTestimonialEdit(id);
+  if (btn.dataset.action === 'delete') return deleteTestimonial(id, t.author_name);
 }
 
 function openTestimonialAdd() {
@@ -285,20 +311,27 @@ function renderSiteContent() {
   siteContentData.forEach(item => {
     if (item.section !== currentSection) {
       if (currentSection) html += '</div>';
-      html += `<div style="margin-bottom:1.5rem"><p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.75rem">${item.section || 'General'}</p><div>`;
+      html += `<div style="margin-bottom:1.5rem"><p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.75rem">${escapeHtml(item.section || 'General')}</p><div>`;
       currentSection = item.section;
     }
     const isLong = (item.value || '').length > 80;
+    const safeKey = escapeHtml(item.key);
     html += `
       <div class="form-group">
-        <label for="sc-${item.key}">${item.key}</label>
+        <label for="sc-${safeKey}">${safeKey}</label>
         ${isLong
-          ? `<textarea id="sc-${item.key}" data-key="${item.key}" rows="3">${item.value || ''}</textarea>`
-          : `<input type="text" id="sc-${item.key}" data-key="${item.key}" value="${(item.value || '').replace(/"/g, '&quot;')}" />`}
+          ? `<textarea id="sc-${safeKey}" data-key="${safeKey}" rows="3"></textarea>`
+          : `<input type="text" id="sc-${safeKey}" data-key="${safeKey}" />`}
       </div>`;
   });
   if (currentSection) html += '</div></div>';
   body.innerHTML = html;
+
+  // Set values via .value to avoid HTML interpretation of admin-typed content
+  siteContentData.forEach(item => {
+    const el = body.querySelector(`[data-key="${CSS.escape(item.key)}"]`);
+    if (el) el.value = item.value || '';
+  });
 }
 
 async function saveSiteContent() {
@@ -338,8 +371,8 @@ async function saveSiteContent() {
 
   document.getElementById('btn-save-content').addEventListener('click', saveSiteContent);
 
-  window.openFaqEdit         = openFaqEdit;
-  window.deleteFaq           = deleteFaq;
-  window.openTestimonialEdit = openTestimonialEdit;
-  window.deleteTestimonial   = deleteTestimonial;
+  // Event delegation: replaces inline onclick="…" so user-controlled FAQ
+  // questions and testimonial author names can never break out of the attribute.
+  document.getElementById('faqs-tbody').addEventListener('click', handleFaqAction);
+  document.getElementById('testimonials-tbody').addEventListener('click', handleTestimonialAction);
 })();

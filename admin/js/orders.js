@@ -34,23 +34,23 @@ async function loadOrders() {
     }
 
     tbody.innerHTML = orders.map(o => `
-      <tr>
-        <td><a href="#" style="color:var(--accent);font-weight:600" onclick="openOrderModal('${o.id}');return false">${o.order_number}</a></td>
+      <tr data-order-id="${escapeHtml(o.id)}">
+        <td><a href="#" class="order-link" style="color:var(--accent);font-weight:600">${escapeHtml(o.order_number)}</a></td>
         <td>
-          <div style="font-weight:500">${o.customer_name}</div>
-          <div style="font-size:.75rem;color:var(--muted)">${o.customer_email}</div>
+          <div style="font-weight:500">${escapeHtml(o.customer_name)}</div>
+          <div style="font-size:.75rem;color:var(--muted)">${escapeHtml(o.customer_email)}</div>
         </td>
         <td style="font-size:.8rem;color:var(--muted)">—</td>
         <td>${formatPrice(o.total_amount)}</td>
         <td>${statusBadge(o.order_status)}</td>
         <td>${statusBadge(o.payment_status)}</td>
         <td>
-          <span class="badge badge-gray">${o.delivery_method}</span>
+          <span class="badge badge-gray">${escapeHtml(o.delivery_method)}</span>
           ${o.delivery_date ? `<div style="font-size:.72rem;color:var(--muted);margin-top:2px">${formatDate(o.delivery_date)}</div>` : ''}
         </td>
         <td style="font-size:.8rem;white-space:nowrap">${formatDateTime(o.created_at)}</td>
         <td class="actions">
-          <button class="btn btn-ghost btn-sm" onclick="openOrderModal('${o.id}')">View</button>
+          <button class="btn btn-ghost btn-sm" data-action="view">View</button>
         </td>
       </tr>
     `).join('');
@@ -93,7 +93,7 @@ async function openOrderModal(orderId) {
 
     const itemsHtml = (o.items || []).map(i => `
       <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
-        <span>${i.product_name} × ${i.quantity}</span>
+        <span>${escapeHtml(i.product_name)} × ${escapeHtml(i.quantity)}</span>
         <span>${formatPrice(i.line_total)}</span>
       </div>`).join('') || '<p style="color:var(--muted);font-size:.85rem">No items recorded.</p>';
 
@@ -101,27 +101,27 @@ async function openOrderModal(orderId) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
         <div>
           <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:.3rem">Customer</p>
-          <p style="font-weight:600">${o.customer_name}</p>
-          <p style="font-size:.83rem">${o.customer_email}</p>
-          <p style="font-size:.83rem">${o.customer_phone || '—'}</p>
+          <p style="font-weight:600">${escapeHtml(o.customer_name)}</p>
+          <p style="font-size:.83rem">${escapeHtml(o.customer_email)}</p>
+          <p style="font-size:.83rem">${escapeHtml(o.customer_phone || '—')}</p>
         </div>
         <div>
           <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:.3rem">Delivery</p>
           <p style="font-size:.83rem;font-weight:500">${o.delivery_method === 'delivery' ? 'Local Delivery' : 'Pickup'}</p>
-          <p style="font-size:.83rem">${addr}</p>
+          <p style="font-size:.83rem">${escapeHtml(addr)}</p>
           ${o.delivery_date ? `<p style="font-size:.83rem">Date: ${formatDate(o.delivery_date)}</p>` : ''}
         </div>
       </div>
 
       ${o.recipient_name || o.card_message ? `
         <div style="background:var(--bg);border-radius:6px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.83rem">
-          ${o.recipient_name ? `<p><strong>Recipient:</strong> ${o.recipient_name}</p>` : ''}
-          ${o.card_message   ? `<p style="margin-top:.25rem"><strong>Card:</strong> ${o.card_message}</p>` : ''}
+          ${o.recipient_name ? `<p><strong>Recipient:</strong> ${escapeHtml(o.recipient_name)}</p>` : ''}
+          ${o.card_message   ? `<p style="margin-top:.25rem"><strong>Card:</strong> ${escapeHtml(o.card_message)}</p>` : ''}
         </div>` : ''}
 
       ${o.special_instructions ? `
         <div style="background:var(--warning-bg);border-radius:6px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.83rem;color:var(--warning)">
-          <strong>Special Instructions:</strong> ${o.special_instructions}
+          <strong>Special Instructions:</strong> ${escapeHtml(o.special_instructions)}
         </div>` : ''}
 
       <div style="margin-bottom:1rem">
@@ -154,12 +154,21 @@ async function openOrderModal(orderId) {
 
       <div class="form-group">
         <label>Internal Notes</label>
-        <textarea id="modal-internal-notes" rows="3" placeholder="Notes visible only to admins…">${o.internal_notes || ''}</textarea>
+        <textarea id="modal-internal-notes" rows="3" placeholder="Notes visible only to admins…"></textarea>
       </div>
     `;
 
+    // Set notes via .value to avoid HTML interpretation of admin-typed content
+    document.getElementById('modal-internal-notes').value = o.internal_notes || '';
+
   } catch (err) {
-    body.innerHTML = `<div class="empty-state"><p>Failed to load order: ${err.message}</p></div>`;
+    body.textContent = '';
+    const wrap = document.createElement('div');
+    wrap.className = 'empty-state';
+    const p = document.createElement('p');
+    p.textContent = `Failed to load order: ${err.message}`;
+    wrap.appendChild(p);
+    body.appendChild(wrap);
   }
 }
 
@@ -210,7 +219,17 @@ async function saveOrderStatus() {
   document.getElementById('btn-prev').addEventListener('click', () => { currentPage--; loadOrders(); });
   document.getElementById('btn-next').addEventListener('click', () => { currentPage++; loadOrders(); });
 
-  window.openOrderModal = openOrderModal;
+  // Event delegation for "View" / order-number link clicks
+  document.getElementById('orders-tbody').addEventListener('click', e => {
+    const row = e.target.closest('tr[data-order-id]');
+    if (!row) return;
+    const link = e.target.closest('.order-link');
+    const action = e.target.closest('button[data-action]');
+    if (link || action) {
+      e.preventDefault();
+      openOrderModal(row.dataset.orderId);
+    }
+  });
 
   // Pre-open order if URL has ?id=
   const params = new URLSearchParams(window.location.search);
