@@ -17,7 +17,7 @@ let allFaqs = [];
 
 async function loadFaqs() {
   const tbody = document.getElementById('faqs-tbody');
-  tbody.innerHTML = '<tr><td colspan="4"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
+  tbody.innerHTML = '<tr><td data-label="" colspan="4"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
 
   try {
     const res  = await adminFetch('/api/admin/content?type=faqs');
@@ -25,7 +25,7 @@ async function loadFaqs() {
     allFaqs = data.faqs || [];
     renderFaqs();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><p>Failed to load FAQs: ${err.message}</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td data-label="" colspan="4"><div class="empty-state"><p>Failed to load FAQs: ${err.message}</p></div></td></tr>`;
   }
 }
 
@@ -33,16 +33,16 @@ function renderFaqs() {
   const tbody = document.getElementById('faqs-tbody');
 
   if (!allFaqs.length) {
-    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><p>No FAQs yet. Add your first one.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td data-label="" colspan="4"><div class="empty-state"><p>No FAQs yet. Add your first one.</p></div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = allFaqs.map(f => `
     <tr data-faq-id="${escapeHtml(f.id)}">
-      <td style="color:var(--muted);font-size:.82rem">${escapeHtml(f.sort_order)}</td>
-      <td style="font-size:.85rem;font-weight:500;max-width:400px">${escapeHtml(f.question)}</td>
-      <td>${f.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Hidden</span>'}</td>
-      <td class="actions">
+      <td data-label="Sort" style="color:var(--muted);font-size:.82rem">${escapeHtml(f.sort_order)}</td>
+      <td data-label="Question" style="font-size:.85rem;font-weight:500;max-width:400px">${escapeHtml(f.question)}</td>
+      <td data-label="Status">${f.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Hidden</span>'}</td>
+      <td data-label="" class="actions">
         <button class="btn-icon" title="Edit" data-action="edit">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
@@ -147,7 +147,7 @@ let allTestimonials = [];
 
 async function loadTestimonials() {
   const tbody = document.getElementById('testimonials-tbody');
-  tbody.innerHTML = '<tr><td colspan="6"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
+  tbody.innerHTML = '<tr><td data-label="" colspan="6"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
 
   try {
     const res  = await adminFetch('/api/admin/content?type=testimonials');
@@ -155,7 +155,7 @@ async function loadTestimonials() {
     allTestimonials = data.testimonials || [];
     renderTestimonials();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><p>Failed to load testimonials.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td data-label="" colspan="6"><div class="empty-state"><p>Failed to load testimonials.</p></div></td></tr>`;
   }
 }
 
@@ -163,21 +163,21 @@ function renderTestimonials() {
   const tbody = document.getElementById('testimonials-tbody');
 
   if (!allTestimonials.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><p>No testimonials yet.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td data-label="" colspan="6"><div class="empty-state"><p>No testimonials yet.</p></div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = allTestimonials.map(t => `
     <tr data-testimonial-id="${escapeHtml(t.id)}">
-      <td style="color:var(--muted);font-size:.82rem">${escapeHtml(t.sort_order)}</td>
-      <td>
+      <td data-label="Sort" style="color:var(--muted);font-size:.82rem">${escapeHtml(t.sort_order)}</td>
+      <td data-label="Author">
         <div style="font-weight:600;font-size:.85rem">${escapeHtml(t.author_name)}</div>
         ${t.author_label ? `<div style="font-size:.75rem;color:var(--muted)">${escapeHtml(t.author_label)}</div>` : ''}
       </td>
-      <td style="font-size:.82rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">${escapeHtml(t.content)}</td>
-      <td>${'⭐'.repeat(Math.max(0, Math.min(5, t.rating)))}</td>
-      <td>${t.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Hidden</span>'}</td>
-      <td class="actions">
+      <td data-label="Content" style="font-size:.82rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">${escapeHtml(t.content)}</td>
+      <td data-label="Rating">${'⭐'.repeat(Math.max(0, Math.min(5, t.rating)))}</td>
+      <td data-label="Status">${t.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Hidden</span>'}</td>
+      <td data-label="" class="actions">
         <button class="btn-icon" title="Edit" data-action="edit">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>

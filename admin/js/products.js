@@ -89,7 +89,7 @@ function handleAddonsListClick(e) {
 
 async function loadProducts() {
   const tbody = document.getElementById('products-tbody');
-  tbody.innerHTML = '<tr><td colspan="8"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
+  tbody.innerHTML = '<tr><td data-label="" colspan="8"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
 
   try {
     const res  = await adminFetch('/api/admin/products');
@@ -97,7 +97,7 @@ async function loadProducts() {
     allProducts = data.products || [];
     applyFilter();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>Failed to load products: ${err.message}</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td data-label="" colspan="8"><div class="empty-state"><p>Failed to load products: ${err.message}</p></div></td></tr>`;
   }
 }
 
@@ -118,27 +118,27 @@ function renderTable() {
   const tbody = document.getElementById('products-tbody');
 
   if (!filteredProducts.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>No products found.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td data-label="" colspan="8"><div class="empty-state"><p>No products found.</p></div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = filteredProducts.map(p => `
     <tr data-product-id="${escapeHtml(p.id)}">
-      <td>
+      <td data-label="Image">
         ${p.image_url
           ? `<img class="product-thumb" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" loading="lazy" />`
           : `<div class="product-thumb-placeholder"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`}
       </td>
-      <td>
+      <td data-label="Name">
         <div style="font-weight:600;font-size:.85rem">${escapeHtml(p.name)}</div>
         ${p.description ? `<div style="font-size:.75rem;color:var(--muted);margin-top:2px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(p.description)}</div>` : ''}
       </td>
-      <td><span class="badge badge-gray">${escapeHtml(p.category)}</span></td>
-      <td>${formatPrice(p.price)}</td>
-      <td>${p.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}</td>
-      <td>${p.featured ? '<span class="badge badge-blue">Featured</span>' : '<span style="color:var(--muted);font-size:.8rem">—</span>'}</td>
-      <td style="color:var(--muted);font-size:.82rem">${escapeHtml(p.sort_order)}</td>
-      <td class="actions">
+      <td data-label="Category"><span class="badge badge-gray">${escapeHtml(p.category)}</span></td>
+      <td data-label="Price">${formatPrice(p.price)}</td>
+      <td data-label="Status">${p.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}</td>
+      <td data-label="Featured">${p.featured ? '<span class="badge badge-blue">Featured</span>' : '<span style="color:var(--muted);font-size:.8rem">—</span>'}</td>
+      <td data-label="Sort" style="color:var(--muted);font-size:.82rem">${escapeHtml(p.sort_order)}</td>
+      <td data-label="" class="actions">
         <button class="btn-icon" title="Edit" data-action="edit">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>

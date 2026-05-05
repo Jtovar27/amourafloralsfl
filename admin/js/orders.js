@@ -10,7 +10,7 @@ async function loadOrders() {
   const search = document.getElementById('search-input').value.trim();
   const status = document.getElementById('filter-status').value;
 
-  tbody.innerHTML = '<tr><td colspan="9"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
+  tbody.innerHTML = '<tr><td data-label="" colspan="9"><div class="loading-overlay"><div class="spinner"></div> Loading…</div></td></tr>';
 
   const params = new URLSearchParams({ page: currentPage, limit: PAGE_LIMIT });
   if (search) params.set('search', search);
@@ -29,34 +29,34 @@ async function loadOrders() {
     updatePagination();
 
     if (!orders.length) {
-      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><p>No orders found.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td data-label="" colspan="9"><div class="empty-state"><p>No orders found.</p></div></td></tr>`;
       return;
     }
 
     tbody.innerHTML = orders.map(o => `
       <tr data-order-id="${escapeHtml(o.id)}">
-        <td><a href="#" class="order-link" style="color:var(--accent);font-weight:600">${escapeHtml(o.order_number)}</a></td>
-        <td>
+        <td data-label="Order"><a href="#" class="order-link" style="color:var(--accent);font-weight:600">${escapeHtml(o.order_number)}</a></td>
+        <td data-label="Customer">
           <div style="font-weight:500">${escapeHtml(o.customer_name)}</div>
           <div style="font-size:.75rem;color:var(--muted)">${escapeHtml(o.customer_email)}</div>
         </td>
-        <td style="font-size:.8rem;color:var(--muted)">—</td>
-        <td>${formatPrice(o.total_amount)}</td>
-        <td>${statusBadge(o.order_status)}</td>
-        <td>${statusBadge(o.payment_status)}</td>
-        <td>
+        <td data-label="Items" style="font-size:.8rem;color:var(--muted)">—</td>
+        <td data-label="Total">${formatPrice(o.total_amount)}</td>
+        <td data-label="Order Status">${statusBadge(o.order_status)}</td>
+        <td data-label="Payment">${statusBadge(o.payment_status)}</td>
+        <td data-label="Delivery">
           <span class="badge badge-gray">${escapeHtml(o.delivery_method)}</span>
           ${o.delivery_date ? `<div style="font-size:.72rem;color:var(--muted);margin-top:2px">${formatDate(o.delivery_date)}</div>` : ''}
         </td>
-        <td style="font-size:.8rem;white-space:nowrap">${formatDateTime(o.created_at)}</td>
-        <td class="actions">
+        <td data-label="Date" style="font-size:.8rem;white-space:nowrap">${formatDateTime(o.created_at)}</td>
+        <td data-label="" class="actions">
           <button class="btn btn-ghost btn-sm" data-action="view">View</button>
         </td>
       </tr>
     `).join('');
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><p>Failed to load orders: ${err.message}</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td data-label="" colspan="9"><div class="empty-state"><p>Failed to load orders: ${err.message}</p></div></td></tr>`;
   }
 }
 

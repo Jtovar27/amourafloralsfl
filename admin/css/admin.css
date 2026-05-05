@@ -1029,16 +1029,88 @@ textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
   .sb-overlay.open { display: block; }
   .form-row { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
-  .admin-content { padding: 1.5rem; }
-  .admin-topbar { padding: 0 1.25rem; }
+  .admin-content { padding: 1.25rem 1rem; }
+  .admin-topbar { padding: 0 1rem; height: 56px; }
+  .admin-topbar .topbar-title { font-size: 1rem; }
   .page-header-left h1 { font-size: 1.5rem; }
   .stat-value { font-size: 1.85rem; }
+  .page-header { flex-direction: column; align-items: stretch; }
+  .page-header .btn-primary,
+  .page-header .btn { width: 100%; justify-content: center; }
+  .card-header { flex-direction: column; gap: .75rem; align-items: stretch; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar .search-input,
+  .toolbar .filter-select { max-width: 100%; width: 100%; }
+  .btn-icon { padding: .65rem; min-width: 44px; min-height: 44px; }
+  .modal-close { padding: .55rem; min-width: 44px; min-height: 44px; }
 }
+
+/* TODO: add data-label="..." to each <td> in render functions for full mobile labels */
+@media (max-width: 600px) {
+  .admin-content thead { display: none; }
+  .admin-content table,
+  .admin-content tbody,
+  .admin-content tr,
+  .admin-content td { display: block; width: 100%; }
+  .admin-content tbody tr {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: .85rem;
+    padding: .75rem 1rem;
+    background: var(--surface);
+  }
+  .admin-content td {
+    padding: .35rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .admin-content td:last-child { border-bottom: none; }
+  .admin-content td::before {
+    content: attr(data-label);
+    font-family: var(--ff-sans);
+    font-size: .58rem;
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--sage-dark);
+    margin-right: .75rem;
+    flex-shrink: 0;
+  }
+  .admin-content td.actions { justify-content: flex-end; }
+  .admin-content td.actions::before { display: none; }
+}
+
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
   .modal { max-width: 100%; border-radius: 12px 12px 0 0; align-self: flex-end; }
   .admin-content { padding: 1rem; }
-  .login-box { padding: 2rem 1.5rem 1.75rem; }
+  .modal-body { padding: 1.25rem; }
+  .modal-header { padding: 1rem 1.25rem; }
+  .modal-footer {
+    padding: .85rem 1.25rem;
+    flex-direction: column-reverse;
+    gap: .6rem;
+  }
+  .modal-footer .btn { width: 100%; justify-content: center; }
+  .image-upload-zone { min-height: 140px; }
+  .image-upload-preview { min-height: 180px; }
+  .image-upload-preview img { max-height: 220px; }
+  .confirm-box { padding: 1.25rem; }
+  .confirm-actions { flex-direction: column-reverse; gap: .5rem; }
+  .confirm-actions .btn { width: 100%; justify-content: center; }
+  .media-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .65rem; }
+  .media-item img { height: 110px; }
+  .login-box { padding: 1.75rem 1.25rem; max-width: 100%; }
+  /* Prevent iOS zoom-on-focus by ensuring 16px input font-size */
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  select,
+  textarea { font-size: 16px; }
 }
 
 /* ── Add-ons editor (admin product modal) ───────────────────────────────── */
@@ -1122,11 +1194,13 @@ textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
   .addon-row {
     grid-template-columns: 1fr;
     gap: .5rem;
-    padding: .7rem;
+    padding: .65rem;
+    border-bottom: 1px solid var(--border-soft);
   }
   .addon-active,
   .addon-remove {
-    justify-content: flex-start;
+    justify-self: end;
+    justify-content: flex-end;
   }
   .addon-active::before {
     content: 'Active';
