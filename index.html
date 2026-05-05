@@ -110,6 +110,27 @@
     </div>
   </div>
 
+  <!-- BEST SELLERS CAROUSEL -->
+  <section class="bestsellers" id="bestsellers" hidden>
+    <div class="bestsellers-inner">
+      <div class="bestsellers-header" data-reveal>
+        <span class="section-label">Customer Favorites</span>
+        <h2 class="section-title">Best <em>Sellers</em></h2>
+        <p class="bestsellers-subtitle">Loved by our community — handpicked arrangements people keep coming back for.</p>
+      </div>
+
+      <div class="bestsellers-carousel">
+        <button class="bs-arrow bs-arrow-prev" id="bs-prev" aria-label="Previous best sellers" hidden>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="bs-track" id="bs-track" role="list" aria-label="Best seller arrangements"></div>
+        <button class="bs-arrow bs-arrow-next" id="bs-next" aria-label="Next best sellers" hidden>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
 
   <!-- FEATURED INTRO -->
   <section class="featured-intro">
@@ -251,6 +272,7 @@
   </a>
 
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/bestsellers.js"></script>
   <script src="assets/js/dynamic-content.js"></script>
 </body>
 </html>

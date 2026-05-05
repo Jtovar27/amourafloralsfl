@@ -136,7 +136,7 @@ function renderTable() {
       <td data-label="Category"><span class="badge badge-gray">${escapeHtml(p.category)}</span></td>
       <td data-label="Price">${formatPrice(p.price)}</td>
       <td data-label="Status">${p.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}</td>
-      <td data-label="Featured">${p.featured ? '<span class="badge badge-blue">Featured</span>' : '<span style="color:var(--muted);font-size:.8rem">—</span>'}</td>
+      <td data-label="Best Seller">${p.featured ? '<span class="badge badge-blue">Best Seller</span>' : '<span style="color:var(--muted);font-size:.8rem">—</span>'}</td>
       <td data-label="Sort" style="color:var(--muted);font-size:.82rem">${escapeHtml(p.sort_order)}</td>
       <td data-label="" class="actions">
         <button class="btn-icon" title="Edit" data-action="edit">
