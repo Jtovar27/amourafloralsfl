@@ -1,7 +1,12 @@
 /* Amoura Admin — Products Page */
 
+const MEDIA_BUCKET   = 'media';
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
+
 let allProducts = [];
 let filteredProducts = [];
+let isUploadingImage = false;
 
 async function loadProducts() {
   const tbody = document.getElementById('products-tbody');
@@ -98,6 +103,7 @@ function openAddModal() {
   document.getElementById('f-sort').value        = '0';
   document.getElementById('f-active').checked    = true;
   document.getElementById('f-featured').checked  = false;
+  setImagePreview('');
   clearErrors();
   openModal('product-modal');
 }
@@ -116,8 +122,150 @@ function openEditModal(id) {
   document.getElementById('f-sort').value            = p.sort_order;
   document.getElementById('f-active').checked        = p.active;
   document.getElementById('f-featured').checked      = p.featured;
+  setImagePreview(p.image_url || '');
   clearErrors();
   openModal('product-modal');
+}
+
+// ── Image upload (Supabase Storage) ─────────────────────────────────────────
+
+function setImagePreview(url) {
+  const zone     = document.getElementById('image-upload-zone');
+  const empty    = document.getElementById('image-upload-empty');
+  const preview  = document.getElementById('image-upload-preview');
+  const previewImg = document.getElementById('f-image-preview');
+  const overlay  = document.getElementById('image-upload-overlay');
+  const hidden   = document.getElementById('f-image');
+
+  hidden.value = url || '';
+
+  if (url) {
+    previewImg.src = url;
+    empty.hidden   = true;
+    preview.hidden = false;
+    overlay.hidden = true;
+    zone.dataset.state = 'filled';
+  } else {
+    previewImg.removeAttribute('src');
+    empty.hidden   = false;
+    preview.hidden = true;
+    overlay.hidden = true;
+    zone.dataset.state = 'empty';
+  }
+}
+
+function setUploadOverlay(visible, label) {
+  const overlay = document.getElementById('image-upload-overlay');
+  const status  = document.getElementById('image-upload-status');
+  if (label && status) status.textContent = label;
+  if (overlay) overlay.hidden = !visible;
+}
+
+function setUploadingState(uploading) {
+  isUploadingImage = uploading;
+  const saveBtn = document.getElementById('btn-save-product');
+  if (saveBtn) {
+    saveBtn.disabled = uploading;
+    if (uploading) saveBtn.dataset.prevText = saveBtn.textContent;
+    saveBtn.textContent = uploading ? 'Uploading image…' : (saveBtn.dataset.prevText || 'Save Product');
+  }
+}
+
+async function handleImageFile(file) {
+  if (!file) return;
+
+  const errEl = document.getElementById('err-image');
+  errEl.textContent = '';
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    errEl.textContent = 'Use a JPEG, PNG, WebP, or GIF image.';
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    errEl.textContent = 'Image is over 5 MB. Pick a smaller one.';
+    return;
+  }
+
+  // Show local preview immediately for snappy UX
+  const localUrl = URL.createObjectURL(file);
+  setImagePreview(localUrl);
+  setUploadOverlay(true, 'Uploading…');
+  setUploadingState(true);
+
+  try {
+    const sb = await getSupabaseClient();
+    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
+    const { error } = await sb.storage.from(MEDIA_BUCKET).upload(safeName, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type,
+    });
+
+    if (error) throw error;
+
+    const { data: pub } = sb.storage.from(MEDIA_BUCKET).getPublicUrl(safeName);
+    const publicUrl = pub?.publicUrl;
+    if (!publicUrl) throw new Error('Could not resolve public URL.');
+
+    // Swap the blob preview for the real public URL
+    setImagePreview(publicUrl);
+    URL.revokeObjectURL(localUrl);
+    showToast('Image uploaded.', 'success');
+  } catch (err) {
+    console.error('Image upload failed:', err);
+    errEl.textContent = err.message || 'Upload failed. Try again.';
+    setImagePreview('');
+    URL.revokeObjectURL(localUrl);
+    showToast('Image upload failed.', 'error');
+  } finally {
+    setUploadingState(false);
+    setUploadOverlay(false);
+  }
+}
+
+function setupImageUpload() {
+  const zone     = document.getElementById('image-upload-zone');
+  const fileIn   = document.getElementById('f-image-file');
+  const replace  = document.getElementById('btn-replace-image');
+  const remove   = document.getElementById('btn-remove-image');
+
+  // Click on empty zone → open picker
+  zone.addEventListener('click', e => {
+    // Ignore clicks on action buttons inside the preview
+    if (e.target.closest('.image-action-btn')) return;
+    if (zone.dataset.state === 'empty') fileIn.click();
+  });
+
+  // Drag & drop (desktop)
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) handleImageFile(file);
+  });
+
+  fileIn.addEventListener('change', () => {
+    const file = fileIn.files?.[0];
+    if (file) handleImageFile(file);
+    fileIn.value = ''; // allow re-selecting the same file
+  });
+
+  replace.addEventListener('click', e => {
+    e.stopPropagation();
+    fileIn.click();
+  });
+
+  remove.addEventListener('click', e => {
+    e.stopPropagation();
+    setImagePreview('');
+    document.getElementById('err-image').textContent = '';
+  });
 }
 
 function clearErrors() {
@@ -140,6 +288,11 @@ async function saveProduct() {
   }
   if (!category)       { document.getElementById('err-category').textContent = 'Category is required.'; ok = false; }
   if (!ok) return;
+
+  if (isUploadingImage) {
+    showToast('Image is still uploading. Wait a moment.', 'info');
+    return;
+  }
 
   const priceCents = Math.round(parseFloat(priceStr) * 100);
   const payload = {
@@ -212,6 +365,8 @@ async function deleteProduct(id, name) {
   if (!session) return;
 
   await loadProducts();
+
+  setupImageUpload();
 
   document.getElementById('btn-add-product').addEventListener('click', openAddModal);
   document.getElementById('btn-save-product').addEventListener('click', saveProduct);

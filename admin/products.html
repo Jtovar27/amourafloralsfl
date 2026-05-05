@@ -137,9 +137,39 @@
           <textarea id="f-description" placeholder="Short product description…" rows="3"></textarea>
         </div>
         <div class="form-group">
-          <label for="f-image">Image URL</label>
-          <input type="url" id="f-image" placeholder="https://…" />
-          <div class="form-hint">Paste a URL from Media or an external CDN</div>
+          <label>Product Image</label>
+          <div class="image-upload-wrap">
+            <div class="image-upload-zone" id="image-upload-zone" data-state="empty">
+              <input type="file" id="f-image-file" accept="image/*" hidden />
+              <div class="image-upload-empty" id="image-upload-empty">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <p class="image-upload-cta">Tap to choose photo</p>
+                <p class="image-upload-hint">From your gallery or take a new one<br/>JPEG · PNG · WebP · GIF — up to 5 MB</p>
+              </div>
+              <div class="image-upload-preview" id="image-upload-preview" hidden>
+                <img id="f-image-preview" alt="Product preview" />
+                <div class="image-upload-overlay" id="image-upload-overlay" hidden>
+                  <div class="spinner"></div>
+                  <span id="image-upload-status">Uploading…</span>
+                </div>
+                <div class="image-upload-actions">
+                  <button type="button" class="image-action-btn" id="btn-replace-image" title="Replace">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                    Replace
+                  </button>
+                  <button type="button" class="image-action-btn image-action-danger" id="btn-remove-image" title="Remove">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="f-image" />
+            <div class="form-error" id="err-image"></div>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group">
