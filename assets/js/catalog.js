@@ -19,7 +19,7 @@
     'bouquets':     'Bouquets',
     'floral-boxes': 'Floral Boxes',
     'balloons':     'Balloons',
-    'gifts':        'Add-ons'
+    'gifts':        'Gifts'
   };
 
   function formatPrice(cents) {

@@ -91,19 +91,39 @@ async function openOrderModal(orderId) {
       ? `${o.shipping_address.street}, ${o.shipping_address.city}, ${o.shipping_address.state} ${o.shipping_address.zip}`
       : 'Pickup';
 
-    const itemsHtml = (o.items || []).map(i => `
-      <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
-        <span>${escapeHtml(i.product_name)} × ${escapeHtml(i.quantity)}</span>
-        <span>${formatPrice(i.line_total)}</span>
-      </div>`).join('') || '<p style="color:var(--muted);font-size:.85rem">No items recorded.</p>';
+    const itemsHtml = (o.items || []).map(i => {
+      const addons = Array.isArray(i.selected_addons) ? i.selected_addons : [];
+      const addonsLine = addons.length
+        ? `<div style="margin-top:.25rem;padding-left:.75rem;font-size:.78rem;font-style:italic;color:var(--sage)">${addons.map(a => `+ ${escapeHtml(a.name || '')}`).join(' · ')}</div>`
+        : '';
+      return `
+      <div style="padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
+        <div style="display:flex;justify-content:space-between">
+          <span>${escapeHtml(i.product_name)} × ${escapeHtml(i.quantity)}</span>
+          <span>${formatPrice(i.line_total)}</span>
+        </div>
+        ${addonsLine}
+      </div>`;
+    }).join('') || '<p style="color:var(--muted);font-size:.85rem">No items recorded.</p>';
+
+    const email = o.customer_email || '';
+    const phone = o.customer_phone || '';
+    const emailHtml = email
+      ? `<a href="mailto:${escapeHtml(email)}" style="color:var(--accent);text-decoration:none">${escapeHtml(email)}</a> <button type="button" data-copy="${escapeHtml(email)}" data-copy-label="Email" class="btn btn-ghost btn-sm" style="padding:1px 6px;font-size:.7rem;margin-left:4px" title="Copy email">Copy</button>`
+      : '—';
+    const phoneHtml = phone
+      ? `<a href="tel:${escapeHtml(phone)}" style="color:var(--accent);text-decoration:none">${escapeHtml(phone)}</a> <button type="button" data-copy="${escapeHtml(phone)}" data-copy-label="Phone" class="btn btn-ghost btn-sm" style="padding:1px 6px;font-size:.7rem;margin-left:4px" title="Copy phone">Copy</button>`
+      : '—';
 
     body.innerHTML = `
+      <p style="font-size:.78rem;color:var(--muted);margin:-.25rem 0 1rem">Placed ${formatDateTime(o.created_at)}</p>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
         <div>
           <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:.3rem">Customer</p>
           <p style="font-weight:600">${escapeHtml(o.customer_name)}</p>
-          <p style="font-size:.83rem">${escapeHtml(o.customer_email)}</p>
-          <p style="font-size:.83rem">${escapeHtml(o.customer_phone || '—')}</p>
+          <p style="font-size:.83rem">${emailHtml}</p>
+          <p style="font-size:.83rem">${phoneHtml}</p>
         </div>
         <div>
           <p style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:.3rem">Delivery</p>
@@ -156,10 +176,59 @@ async function openOrderModal(orderId) {
         <label>Internal Notes</label>
         <textarea id="modal-internal-notes" rows="3" placeholder="Notes visible only to admins…"></textarea>
       </div>
+
+      <div class="form-group">
+        <label>Payment Details</label>
+        <div style="background:var(--bg);border-radius:6px;padding:.75rem 1rem;font-size:.83rem;display:grid;gap:.5rem">
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <span style="color:var(--muted);min-width:90px">Status</span>
+            <span>${statusBadge(o.payment_status)}</span>
+          </div>
+          ${o.payment_provider ? `
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <span style="color:var(--muted);min-width:90px">Provider</span>
+            <span>${escapeHtml(o.payment_provider)}</span>
+          </div>` : ''}
+          ${o.stripe_payment_intent ? `
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+            <span style="color:var(--muted);min-width:90px">Payment Intent</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;background:var(--off-white);padding:2px 6px;border-radius:3px">${escapeHtml(o.stripe_payment_intent)}</span>
+            <a href="https://dashboard.stripe.com/payments/${encodeURIComponent(o.stripe_payment_intent)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" style="padding:1px 8px;font-size:.72rem">Open in Stripe ↗</a>
+          </div>` : ''}
+          ${o.stripe_session_id ? `
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+            <span style="color:var(--muted);min-width:90px">Session</span>
+            <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;background:var(--off-white);padding:2px 6px;border-radius:3px">${escapeHtml(o.stripe_session_id)}</span>
+            <a href="https://dashboard.stripe.com/checkout/sessions/${encodeURIComponent(o.stripe_session_id)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" style="padding:1px 8px;font-size:.72rem">Open in Stripe ↗</a>
+          </div>` : ''}
+          ${!o.stripe_payment_intent && !o.stripe_session_id ? `
+          <div style="color:var(--muted);font-size:.78rem;font-style:italic">No Stripe references on file.</div>` : ''}
+        </div>
+      </div>
     `;
 
     // Set notes via .value to avoid HTML interpretation of admin-typed content
     document.getElementById('modal-internal-notes').value = o.internal_notes || '';
+
+    // Wire up "Copy" mini buttons (defensive: never throw, never submit form)
+    body.querySelectorAll('button[data-copy]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const value = btn.getAttribute('data-copy') || '';
+        const label = btn.getAttribute('data-copy-label') || 'Value';
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(value).then(
+              () => showToast(`${label} copied.`),
+              () => {}
+            );
+          }
+        } catch (_) {
+          // silent
+        }
+      });
+    });
 
   } catch (err) {
     body.textContent = '';
