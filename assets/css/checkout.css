@@ -13,6 +13,7 @@
   padding-bottom: clamp(60px, 8vw, 120px);
   min-height: 80vh;
   background: var(--cream, #FAF8F5);
+  overflow-x: clip;
 }
 
 .checkout-page-header {
@@ -33,12 +34,13 @@
 
 .checkout-page-header h1 {
   font-family: var(--ff-serif);
-  font-size: clamp(32px, 5vw, 52px);
+  font-size: clamp(28px, 5vw, 52px);
   font-weight: 300;
   color: var(--dark);
   margin: 0;
   letter-spacing: 0.02em;
   font-style: italic;
+  line-height: 1.1;
 }
 
 /* ── Two-column layout ────────────────────────────────── */
@@ -104,7 +106,7 @@
   gap: 0 20px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   .form-grid-2,
   .form-grid-3 { grid-template-columns: 1fr; gap: 0; }
 }
@@ -430,6 +432,12 @@
 /* ── Submit area ──────────────────────────────────────── */
 .checkout-actions {
   padding-top: 12px;
+  /* On mobile, leave clearance so the WhatsApp widget doesn't cover submit */
+  padding-bottom: 88px;
+}
+
+@media (min-width: 861px) {
+  .checkout-actions { padding-bottom: 12px; }
 }
 
 .checkout-submit {
@@ -815,4 +823,85 @@
 
 .processing-card a {
   color: var(--sage);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE HARDENING — phones (320, 375, 414)
+═══════════════════════════════════════════════════════ */
+
+@media (max-width: 860px) {
+  .checkout-layout {
+    padding: 0 clamp(14px, 4vw, 24px);
+    gap: 24px;
+  }
+
+  /* Compact summary on mobile so it doesn't push the form way down */
+  .checkout-summary-col {
+    order: -1;
+  }
+  .order-summary { padding: 18px 16px; }
+  .summary-title {
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    font-size: 10px;
+    letter-spacing: 2.4px;
+  }
+  .summary-item { padding: 8px 0; gap: 10px; }
+  .summary-item-name { font-size: 14px; }
+  .summary-item-qty { font-size: 10px; }
+  .summary-item-price { font-size: 12px; }
+  .summary-divider { margin: 12px 0; }
+  .summary-rows { gap: 6px; }
+  .summary-row { font-size: 12px; }
+  .summary-row.total-row { font-size: 14px; padding-top: 10px; }
+  .summary-row.total-row span:last-child { font-size: 17px; }
+  .summary-back-link { margin-top: 14px; font-size: 11px; }
+
+  /* Form column padding shrinks so fields aren't crammed at 320px */
+  .checkout-form-col { padding: 20px 16px; }
+  .form-section { margin-bottom: 28px; }
+  .form-section-title {
+    font-size: 10px;
+    letter-spacing: 2.4px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    margin-bottom: 8px;
+  }
+
+  /* Radio cards — keep two columns at 414/375, single column under 480 already */
+  .radio-card { padding: 14px 12px; min-height: 80px; }
+  .radio-card-title { font-size: 13px; }
+  .radio-card-price { font-size: 12px; }
+  .radio-card-desc { font-size: 11px; }
+}
+
+@media (max-width: 380px) {
+  .checkout-page-header h1 { font-size: 26px; }
+  .checkout-page-header { padding: 0 16px 24px; }
+  .checkout-form-col { padding: 18px 14px; }
+  .order-summary { padding: 16px 14px; }
+}
+
+/* Hidden state must collapse cleanly without leftover gap */
+#address-fields.hidden,
+#gift-fields[style*="display:none"] {
+  display: none !important;
+  margin: 0;
+  padding: 0;
+}
+
+/* Success / cancel — actions stack on phones */
+@media (max-width: 480px) {
+  .success-actions { flex-direction: column; align-items: stretch; gap: 10px; }
+  .success-actions .btn { width: 100%; text-align: center; }
+  .order-card { padding: 20px 18px; }
+  .order-card-number { font-size: 22px; }
+  .success-main, .cancel-main {
+    padding: 110px 16px 100px;
+  }
 }
