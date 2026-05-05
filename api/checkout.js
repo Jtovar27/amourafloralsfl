@@ -165,15 +165,23 @@ module.exports = async function handler(req, res) {
     return jsonError(res, 500, 'Failed to save order items. Please try again.');
   }
 
-  // Build Stripe line items (exact breakdown shown at checkout)
-  const lineItems = validatedItems.map(i => ({
-    price_data: {
-      currency:     'usd',
-      product_data: { name: i.product_name },
-      unit_amount:  i.unit_price,
-    },
-    quantity: i.quantity,
-  }));
+  // Build Stripe line items (exact breakdown shown at checkout).
+  // Append selected add-on names to the product name so customers see exactly
+  // what they're buying. unit_price already includes the addon price sum
+  // (computed server-side in validateAndPriceItems — never trust client prices).
+  const lineItems = validatedItems.map(i => {
+    const nameWithAddons = i.product_name + ((i.selected_addons || []).length
+      ? ' (+ ' + i.selected_addons.map(a => a.name).join(', + ') + ')'
+      : '');
+    return {
+      price_data: {
+        currency:     'usd',
+        product_data: { name: nameWithAddons },
+        unit_amount:  i.unit_price,
+      },
+      quantity: i.quantity,
+    };
+  });
 
   if (shippingCents > 0) {
     lineItems.push({

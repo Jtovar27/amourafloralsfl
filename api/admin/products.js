@@ -1,4 +1,5 @@
 'use strict';
+const crypto = require('crypto');
 const { getSupabase } = require('../lib/supabase');
 const { verifyAdmin, setCors, parseBody } = require('./_verify');
 
@@ -7,6 +8,51 @@ function slugify(t) {
 }
 
 const VALID_CATEGORIES = ['bouquets', 'floral-boxes', 'balloons', 'gifts'];
+
+const ADDON_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const MAX_ADDONS = 20;
+const MAX_ADDON_PRICE_CENTS = 1_000_000;
+const MAX_ADDON_NAME_LEN = 80;
+
+function sanitizeAddons(input) {
+  if (!Array.isArray(input)) return [];
+  if (input.length > MAX_ADDONS) {
+    throw Object.assign(new Error(`No more than ${MAX_ADDONS} add-ons allowed.`), { status: 400 });
+  }
+
+  const out = [];
+  const seenNames = new Set();
+
+  for (const raw of input) {
+    if (!raw || typeof raw !== 'object') continue;
+
+    const name = typeof raw.name === 'string' ? raw.name.trim().slice(0, MAX_ADDON_NAME_LEN) : '';
+    if (!name) continue; // drop blanks
+
+    const lc = name.toLowerCase();
+    if (seenNames.has(lc)) {
+      throw Object.assign(new Error('Add-on names must be unique.'), { status: 400 });
+    }
+    seenNames.add(lc);
+
+    let id = typeof raw.id === 'string' ? raw.id : '';
+    if (!ADDON_ID_RE.test(id)) {
+      id = 'a_' + crypto.randomUUID().slice(0, 8);
+    }
+
+    let priceCents = Number(raw.price_cents);
+    if (!Number.isFinite(priceCents) || !Number.isInteger(priceCents) || priceCents < 0) {
+      priceCents = 0;
+    }
+    if (priceCents > MAX_ADDON_PRICE_CENTS) priceCents = MAX_ADDON_PRICE_CENTS;
+
+    const active = raw.active === undefined ? true : Boolean(raw.active);
+
+    out.push({ id, name, price_cents: priceCents, active });
+  }
+
+  return out;
+}
 
 module.exports = async function handler(req, res) {
   setCors(res);
@@ -46,6 +92,10 @@ module.exports = async function handler(req, res) {
     if (isNaN(priceInt) || priceInt <= 0) return res.status(400).json({ error: 'Price must be a positive integer (cents)' });
     if (!VALID_CATEGORIES.includes(category)) return res.status(400).json({ error: `Category must be one of: ${VALID_CATEGORIES.join(', ')}` });
 
+    let cleanAddons;
+    try { cleanAddons = sanitizeAddons(body.addons); }
+    catch (err) { return res.status(err.status || 400).json({ error: err.message }); }
+
     const { data, error } = await supabase
       .from('products')
       .insert({
@@ -58,6 +108,7 @@ module.exports = async function handler(req, res) {
         featured:    Boolean(featured),
         active:      active !== false,
         sort_order:  parseInt(sort_order, 10) || 0,
+        addons:      cleanAddons,
       })
       .select()
       .single();
@@ -99,6 +150,10 @@ module.exports = async function handler(req, res) {
     if (updates.featured   !== undefined) patch.featured   = Boolean(updates.featured);
     if (updates.active     !== undefined) patch.active     = Boolean(updates.active);
     if (updates.sort_order !== undefined) patch.sort_order = parseInt(updates.sort_order, 10) || 0;
+    if (updates.addons     !== undefined) {
+      try { patch.addons = sanitizeAddons(updates.addons); }
+      catch (err) { return res.status(err.status || 400).json({ error: err.message }); }
+    }
 
     const { data, error } = await supabase
       .from('products').update(patch).eq('id', id).select().single();

@@ -7,6 +7,85 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 let allProducts = [];
 let filteredProducts = [];
 let isUploadingImage = false;
+let addonsState = [];
+
+function genAddonId() {
+  return 'a_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+function renderAddons() {
+  const container = document.getElementById('addons-list');
+  if (!container) return;
+
+  if (!addonsState.length) {
+    container.innerHTML = `<p class="addons-empty">No add-ons yet. Click "+ Add Option" to create one.</p>`;
+    return;
+  }
+
+  container.innerHTML = addonsState.map((a, i) => {
+    const priceUsd = ((a.price_cents || 0) / 100).toFixed(2);
+    return `
+      <div class="addon-row" data-addon-index="${i}">
+        <div class="addon-field addon-name">
+          <input type="text" data-addon-key="name" placeholder="e.g. Premium Vase" value="${escapeHtml(a.name || '')}" />
+        </div>
+        <div class="addon-field addon-price">
+          <span class="addon-price-prefix">$</span>
+          <input type="number" data-addon-key="price" min="0" step="0.01" placeholder="0.00" value="${escapeHtml(priceUsd)}" />
+        </div>
+        <div class="addon-field addon-active">
+          <label class="switch"><input type="checkbox" data-addon-key="active" ${a.active !== false ? 'checked' : ''} /><span class="slider"></span></label>
+        </div>
+        <div class="addon-field addon-remove">
+          <button type="button" class="btn-icon" data-addon-key="remove" title="Remove add-on" aria-label="Remove add-on">
+            <svg width="14" height="14" fill="none" stroke="#ef4444" stroke-width="1.6" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addAddon() {
+  addonsState.push({ id: genAddonId(), name: '', price_cents: 0, active: true });
+  renderAddons();
+  const container = document.getElementById('addons-list');
+  if (container) {
+    const inputs = container.querySelectorAll('input[data-addon-key="name"]');
+    const last = inputs[inputs.length - 1];
+    if (last) last.focus();
+  }
+}
+
+function handleAddonsListInput(e) {
+  const target = e.target;
+  if (!target.matches('input[data-addon-key]')) return;
+  const row = target.closest('.addon-row');
+  if (!row) return;
+  const idx = parseInt(row.dataset.addonIndex, 10);
+  if (!Number.isFinite(idx) || !addonsState[idx]) return;
+
+  const key = target.dataset.addonKey;
+  if (key === 'name') {
+    addonsState[idx].name = target.value;
+  } else if (key === 'price') {
+    const cents = Math.round(parseFloat(target.value) * 100);
+    addonsState[idx].price_cents = Number.isFinite(cents) ? Math.max(0, cents) : 0;
+  } else if (key === 'active') {
+    addonsState[idx].active = target.checked;
+  }
+}
+
+function handleAddonsListClick(e) {
+  const btn = e.target.closest('button[data-addon-key="remove"]');
+  if (!btn) return;
+  const row = btn.closest('.addon-row');
+  if (!row) return;
+  const idx = parseInt(row.dataset.addonIndex, 10);
+  if (!Number.isFinite(idx)) return;
+  addonsState.splice(idx, 1);
+  renderAddons();
+}
 
 async function loadProducts() {
   const tbody = document.getElementById('products-tbody');
@@ -103,6 +182,8 @@ function openAddModal() {
   document.getElementById('f-sort').value        = '0';
   document.getElementById('f-active').checked    = true;
   document.getElementById('f-featured').checked  = false;
+  addonsState = [];
+  renderAddons();
   setImagePreview('');
   clearErrors();
   openModal('product-modal');
@@ -122,6 +203,8 @@ function openEditModal(id) {
   document.getElementById('f-sort').value            = p.sort_order;
   document.getElementById('f-active').checked        = p.active;
   document.getElementById('f-featured').checked      = p.featured;
+  addonsState = Array.isArray(p.addons) ? JSON.parse(JSON.stringify(p.addons)) : [];
+  renderAddons();
   setImagePreview(p.image_url || '');
   clearErrors();
   openModal('product-modal');
@@ -294,6 +377,31 @@ async function saveProduct() {
     return;
   }
 
+  // Sanitize add-ons
+  const cleanAddons = addonsState
+    .map(a => ({
+      id: a.id || genAddonId(),
+      name: (a.name || '').trim(),
+      price_cents: Number.isFinite(a.price_cents) ? Math.max(0, Math.round(a.price_cents)) : 0,
+      active: a.active !== false,
+    }))
+    .filter(a => a.name);
+
+  // Validate add-ons
+  if (cleanAddons.some(a => a.price_cents < 0)) {
+    showToast('Add-on prices must be 0 or greater.', 'error');
+    return;
+  }
+  const seenNames = new Set();
+  for (const a of cleanAddons) {
+    const key = a.name.toLowerCase();
+    if (seenNames.has(key)) {
+      showToast('Add-on names must be unique.', 'error');
+      return;
+    }
+    seenNames.add(key);
+  }
+
   const priceCents = Math.round(parseFloat(priceStr) * 100);
   const payload = {
     name,
@@ -304,6 +412,7 @@ async function saveProduct() {
     sort_order:  parseInt(document.getElementById('f-sort').value, 10) || 0,
     active:      document.getElementById('f-active').checked,
     featured:    document.getElementById('f-featured').checked,
+    addons:      cleanAddons,
   };
 
   const btn = document.getElementById('btn-save-product');
@@ -371,6 +480,12 @@ async function deleteProduct(id, name) {
   document.getElementById('btn-add-product').addEventListener('click', openAddModal);
   document.getElementById('btn-save-product').addEventListener('click', saveProduct);
   document.getElementById('btn-cancel-modal').addEventListener('click', () => closeModal('product-modal'));
+
+  document.getElementById('btn-add-addon').addEventListener('click', addAddon);
+  const addonsListEl = document.getElementById('addons-list');
+  addonsListEl.addEventListener('input',  handleAddonsListInput);
+  addonsListEl.addEventListener('change', handleAddonsListInput);
+  addonsListEl.addEventListener('click',  handleAddonsListClick);
 
   const searchInput    = document.getElementById('search-input');
   const filterCategory = document.getElementById('filter-category');

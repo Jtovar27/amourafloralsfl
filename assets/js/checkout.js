@@ -35,23 +35,51 @@ function getDeliveryMethod() {
   return document.querySelector('input[name="delivery_method"]:checked')?.value || 'pickup';
 }
 
+function lineTotal(item) {
+  const base = item.price || 0;
+  const addonsSum = (item.addons || []).reduce((s, a) => s + (a.price || 0), 0);
+  return (base + addonsSum) * (item.qty || 1);
+}
+
+function subtotalDollars() {
+  return cart.reduce((s, i) => s + lineTotal(i), 0);
+}
+
+function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function renderSummary() {
   const method    = getDeliveryMethod();
-  const subtotal  = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const subtotal  = subtotalDollars();
   const shipping  = method === 'delivery' ? SHIPPING_FEE : 0;
   const tax       = (subtotal + shipping) * TAX_RATE;
   const total     = subtotal + shipping + tax;
 
   const itemsEl = document.getElementById('summary-items');
   if (itemsEl) {
-    itemsEl.innerHTML = cart.map(i => `
+    itemsEl.innerHTML = cart.map(i => {
+      const addons = Array.isArray(i.addons) ? i.addons : [];
+      const addonsHtml = addons.length
+        ? `<div style="font-size:.78rem;color:#818263;font-style:italic;margin-top:2px;">${
+            addons.map(a => `+ ${escapeHtml(a.name)}`).join(' &middot; ')
+          }</div>`
+        : '';
+      return `
       <div class="summary-item">
         <div class="summary-item-info">
-          <span class="summary-item-name">${i.name}</span>
+          <span class="summary-item-name">${escapeHtml(i.name)}</span>
           <span class="summary-item-qty">Qty: ${i.qty}</span>
+          ${addonsHtml}
         </div>
-        <span class="summary-item-price">$${(i.price * i.qty).toFixed(2)}</span>
-      </div>`).join('');
+        <span class="summary-item-price">$${lineTotal(i).toFixed(2)}</span>
+      </div>`;
+    }).join('');
   }
 
   document.getElementById('summary-subtotal').textContent = `$${subtotal.toFixed(2)}`;
@@ -179,7 +207,11 @@ form?.addEventListener('submit', async e => {
   const isGift = isGiftBox?.checked || false;
 
   const payload = {
-    items: cart.map(i => ({ id: i.id, qty: i.qty })),
+    items: cart.map(i => ({
+      id:     i.id,
+      qty:    i.qty,
+      addons: Array.isArray(i.addons) ? i.addons.map(a => ({ id: a.id })) : [],
+    })),
     customer: {
       name:  document.getElementById('customer-name').value.trim(),
       email: document.getElementById('customer-email').value.trim(),

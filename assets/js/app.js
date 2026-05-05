@@ -199,12 +199,28 @@ function saveCart() {
   localStorage.setItem('amoura_cart', JSON.stringify(cart));
 }
 
-function addToCart(id, name, price) {
-  const existing = cart.find(i => i.id === id);
+/* Compares two addon arrays by id-set equality. */
+function sameAddons(a, b) {
+  const ai = (a || []).map(x => x.id).sort().join('|');
+  const bi = (b || []).map(x => x.id).sort().join('|');
+  return ai === bi;
+}
+
+/* Generates a stable composite cart key (id + addon ids) */
+function cartKey(id, addons) {
+  const ids = (addons || []).map(x => x.id).sort().join('|');
+  return ids ? `${id}::${ids}` : String(id);
+}
+
+function addToCart(id, name, price, addons) {
+  const selectedAddons = Array.isArray(addons) ? addons : [];
+  const existing = cart.find(i => i.id === id && sameAddons(i.addons || [], selectedAddons));
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ id, name, price: parseFloat(price), qty: 1 });
+    const entry = { id, name, price: parseFloat(price), qty: 1 };
+    if (selectedAddons.length) entry.addons = selectedAddons;
+    cart.push(entry);
   }
   saveCart();
   renderCart();
@@ -213,18 +229,18 @@ function addToCart(id, name, price) {
   openCart();
 }
 
-function removeFromCart(id) {
-  cart = cart.filter(i => i.id !== id);
+function removeFromCart(key) {
+  cart = cart.filter(i => cartKey(i.id, i.addons) !== key);
   saveCart();
   renderCart();
   updateCartCount();
 }
 
-function changeQty(id, delta) {
-  const item = cart.find(i => i.id === id);
+function changeQty(key, delta) {
+  const item = cart.find(i => cartKey(i.id, i.addons) === key);
   if (!item) return;
   item.qty += delta;
-  if (item.qty <= 0) { removeFromCart(id); return; }
+  if (item.qty <= 0) { removeFromCart(key); return; }
   saveCart();
   renderCart();
   updateCartCount();
@@ -255,7 +271,7 @@ function renderCart() {
   cart.forEach(item => {
     const el = document.createElement('div');
     el.className = 'cart-item';
-    el.dataset.cartId = item.id;
+    el.dataset.cartId = cartKey(item.id, item.addons);
     // Build via DOM APIs so admin-controlled product names cannot inject HTML
     const thumb = document.createElement('div');
     thumb.style.cssText = 'background:var(--off-white);aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;width:80px;';
@@ -268,14 +284,29 @@ function renderCart() {
     const price = document.createElement('p');
     price.className = 'cart-item-price';
     price.textContent = `$${item.price.toFixed(2)}`;
+    info.appendChild(name);
+    info.appendChild(price);
+
+    // Addons sub-list (sage italic, muted) — built via DOM APIs to avoid HTML injection
+    if (Array.isArray(item.addons) && item.addons.length) {
+      const ul = document.createElement('ul');
+      ul.className = 'cart-item-addons';
+      ul.style.cssText = 'margin:.25rem 0 0;padding-left:1rem;font-size:.8rem;color:#818263;font-style:italic;list-style:none;';
+      item.addons.forEach(a => {
+        const li = document.createElement('li');
+        const aPrice = Number(a.price || 0);
+        li.textContent = `+ ${a.name} ($${aPrice.toFixed(2)})`;
+        ul.appendChild(li);
+      });
+      info.appendChild(ul);
+    }
+
     const qty = document.createElement('div');
     qty.className = 'cart-item-qty';
     qty.innerHTML =
       '<button class="qty-btn" data-cart-action="dec" type="button">−</button>' +
       `<span class="qty-num">${item.qty}</span>` +
       '<button class="qty-btn" data-cart-action="inc" type="button">+</button>';
-    info.appendChild(name);
-    info.appendChild(price);
     info.appendChild(qty);
 
     const remove = document.createElement('button');
@@ -292,9 +323,229 @@ function renderCart() {
   });
 
   if (cartTotal) {
-    cartTotal.textContent = `$${cart.reduce((acc, i) => acc + i.price * i.qty, 0).toFixed(2)}`;
+    const subtotal = cart.reduce(
+      (s, i) => s + (i.price + (i.addons || []).reduce((sa, a) => sa + (Number(a.price) || 0), 0)) * i.qty,
+      0
+    );
+    cartTotal.textContent = `$${subtotal.toFixed(2)}`;
   }
 }
+
+/* ── Product addons cache ──────────────────────────── */
+// Keyed by product id (String) → array of { id, name, price_cents }.
+// Populated from /api/products on load so the modal can decide whether
+// a product needs addon selection without round-tripping again.
+const productAddonsMap = new Map();
+
+async function loadAddons() {
+  try {
+    const res = await fetch('/api/products');
+    if (!res.ok) return;
+    const { products = [] } = await res.json();
+    products.forEach(p => {
+      if (Array.isArray(p.addons) && p.addons.length) {
+        productAddonsMap.set(String(p.id), p.addons);
+      }
+    });
+  } catch {}
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadAddons);
+} else {
+  loadAddons();
+}
+
+/* ── Addons selection modal ────────────────────────── */
+let addonsModalEl = null;
+let addonsModalState = null; // { id, name, price, addons }
+
+function ensureAddonsModal() {
+  if (addonsModalEl) return addonsModalEl;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'addons-modal-overlay';
+  overlay.className = 'addons-modal-overlay';
+  overlay.hidden = true;
+  overlay.style.cssText = [
+    'position:fixed', 'inset:0', 'background:rgba(46,48,32,.55)',
+    'display:flex', 'align-items:center', 'justify-content:center',
+    'z-index:9999', 'padding:1rem',
+    'font-family:inherit'
+  ].join(';');
+
+  const modal = document.createElement('div');
+  modal.className = 'addons-modal';
+  modal.style.cssText = [
+    'background:#FAF8F5', 'color:#2e3020',
+    'width:100%', 'max-width:420px',
+    'border-radius:6px', 'box-shadow:0 12px 40px rgba(0,0,0,.25)',
+    'display:flex', 'flex-direction:column',
+    'overflow:hidden', 'font-family:inherit'
+  ].join(';');
+
+  const header = document.createElement('header');
+  header.className = 'addons-modal-header';
+  header.style.cssText = [
+    'display:flex', 'align-items:center', 'justify-content:space-between',
+    'padding:1rem 1.25rem', 'border-bottom:1px solid #EFD7CF',
+    'background:#FAF8F5'
+  ].join(';');
+
+  const title = document.createElement('span');
+  title.className = 'addons-modal-title';
+  title.id = 'addons-modal-title';
+  title.style.cssText = 'font-size:1rem;font-weight:500;letter-spacing:.02em;color:#2e3020;';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'addons-modal-close';
+  closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.type = 'button';
+  closeBtn.textContent = '×';
+  closeBtn.style.cssText = [
+    'background:none', 'border:0', 'font-size:1.5rem', 'line-height:1',
+    'color:#818263', 'cursor:pointer', 'padding:0 .25rem'
+  ].join(';');
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+
+  const body = document.createElement('div');
+  body.className = 'addons-modal-body';
+  body.id = 'addons-modal-body';
+  body.style.cssText = 'padding:1rem 1.25rem;max-height:60vh;overflow-y:auto;';
+
+  const footer = document.createElement('footer');
+  footer.className = 'addons-modal-footer';
+  footer.style.cssText = [
+    'display:flex', 'gap:.5rem', 'justify-content:flex-end',
+    'padding:.875rem 1.25rem', 'border-top:1px solid #EFD7CF',
+    'background:#FAF8F5'
+  ].join(';');
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn btn-outline';
+  cancelBtn.id = 'addons-modal-cancel';
+  cancelBtn.type = 'button';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.style.cssText = [
+    'background:transparent', 'border:1px solid #818263', 'color:#818263',
+    'padding:.55rem 1rem', 'font-family:inherit', 'font-size:.85rem',
+    'letter-spacing:.05em', 'cursor:pointer', 'border-radius:2px'
+  ].join(';');
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.className = 'btn btn-sage';
+  confirmBtn.id = 'addons-modal-confirm';
+  confirmBtn.type = 'button';
+  confirmBtn.textContent = 'Add to Cart';
+  confirmBtn.style.cssText = [
+    'background:#818263', 'border:1px solid #818263', 'color:#FAF8F5',
+    'padding:.55rem 1.1rem', 'font-family:inherit', 'font-size:.85rem',
+    'letter-spacing:.05em', 'cursor:pointer', 'border-radius:2px'
+  ].join(';');
+
+  footer.appendChild(cancelBtn);
+  footer.appendChild(confirmBtn);
+
+  modal.appendChild(header);
+  modal.appendChild(body);
+  modal.appendChild(footer);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  function close() { closeAddonsModal(); }
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  closeBtn.addEventListener('click', close);
+  cancelBtn.addEventListener('click', close);
+  confirmBtn.addEventListener('click', confirmAddonsModal);
+
+  addonsModalEl = overlay;
+  return overlay;
+}
+
+function openAddonsModal({ id, name, price, addons }) {
+  ensureAddonsModal();
+  addonsModalState = { id, name, price, addons };
+
+  const title = document.getElementById('addons-modal-title');
+  const body  = document.getElementById('addons-modal-body');
+  if (title) title.textContent = `Optional add-ons for ${name}`;
+  if (body) {
+    body.innerHTML = '';
+    addons.forEach(a => {
+      const dollars = (Number(a.price_cents) || 0) / 100;
+      const row = document.createElement('label');
+      row.style.cssText = [
+        'display:flex', 'align-items:center', 'gap:.6rem',
+        'padding:.55rem .25rem', 'border-bottom:1px solid #EFD7CF',
+        'cursor:pointer', 'font-size:.9rem'
+      ].join(';');
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.dataset.addonId = a.id;
+      cb.dataset.addonName = a.name;
+      cb.dataset.addonPrice = String(dollars);
+      cb.style.cssText = 'accent-color:#818263;width:16px;height:16px;flex-shrink:0;';
+
+      const nameEl = document.createElement('span');
+      nameEl.textContent = a.name;
+      nameEl.style.cssText = 'flex:1;color:#2e3020;';
+
+      const priceEl = document.createElement('span');
+      priceEl.className = 'addons-modal-price';
+      priceEl.textContent = `+$${dollars.toFixed(2)}`;
+      priceEl.style.cssText = 'color:#818263;font-style:italic;';
+
+      row.appendChild(cb);
+      row.appendChild(nameEl);
+      row.appendChild(priceEl);
+      body.appendChild(row);
+    });
+  }
+
+  addonsModalEl.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddonsModal() {
+  if (!addonsModalEl) return;
+  addonsModalEl.hidden = true;
+  addonsModalState = null;
+  // Only reset overflow if cart isn't open
+  if (!cartSidebar || !cartSidebar.classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
+}
+
+function confirmAddonsModal() {
+  if (!addonsModalState) return closeAddonsModal();
+  const { id, name, price } = addonsModalState;
+  const body = document.getElementById('addons-modal-body');
+  const selected = [];
+  if (body) {
+    body.querySelectorAll('input[type="checkbox"][data-addon-id]').forEach(cb => {
+      if (cb.checked) {
+        selected.push({
+          id: cb.dataset.addonId,
+          name: cb.dataset.addonName,
+          price: parseFloat(cb.dataset.addonPrice) || 0,
+        });
+      }
+    });
+  }
+  closeAddonsModal();
+  addToCart(id, name, price, selected);
+}
+
+// ESC closes the addons modal too
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && addonsModalEl && !addonsModalEl.hidden) {
+    closeAddonsModal();
+  }
+});
 
 /* ── Quick-add delegation ──────────────────────────── */
 // Uses event delegation so dynamically-injected cards (catalog.js) work too.
@@ -303,7 +554,12 @@ document.addEventListener('click', e => {
   if (!btn) return;
   e.stopPropagation();
   const { id, name, price } = btn.dataset;
-  addToCart(id, name, price);
+  const addons = productAddonsMap.get(String(id));
+  if (Array.isArray(addons) && addons.length) {
+    openAddonsModal({ id, name, price, addons });
+  } else {
+    addToCart(id, name, price);
+  }
 });
 
 /* ── Cart item delegation ──────────────────────────── */
@@ -315,11 +571,11 @@ if (cartItems) {
     if (!btn) return;
     const row = btn.closest('.cart-item');
     if (!row) return;
-    const id = row.dataset.cartId;
+    const key = row.dataset.cartId;
     switch (btn.dataset.cartAction) {
-      case 'inc':    return changeQty(id, +1);
-      case 'dec':    return changeQty(id, -1);
-      case 'remove': return removeFromCart(id);
+      case 'inc':    return changeQty(key, +1);
+      case 'dec':    return changeQty(key, -1);
+      case 'remove': return removeFromCart(key);
     }
   });
 }

@@ -137,6 +137,12 @@
           <textarea id="f-description" placeholder="Short product description…" rows="3"></textarea>
         </div>
         <div class="form-group">
+          <label>Optional Add-ons</label>
+          <p class="form-hint">Customers can pick these on the product page. Add a name and price for each.</p>
+          <div class="addons-list" id="addons-list" aria-live="polite"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-add-addon" style="margin-top:.6rem">+ Add Option</button>
+        </div>
+        <div class="form-group">
           <label>Product Image</label>
           <div class="image-upload-wrap">
             <div class="image-upload-zone" id="image-upload-zone" data-state="empty">
