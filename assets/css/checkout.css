@@ -2,6 +2,9 @@
    AMOURA FLORALS — checkout.css
    Styles for checkout, success, and cancel pages.
    Does NOT override style.css — only additive.
+   Brand vars come from style.css :root
+   (--ff-sans, --ff-serif, --sage, --peach, --ink,
+    --off-white, --cream, --dark)
 ═══════════════════════════════════════════════════════ */
 
 /* ── Page layout ──────────────────────────────────────── */
@@ -9,6 +12,7 @@
   padding-top: clamp(100px, 12vw, 140px);
   padding-bottom: clamp(60px, 8vw, 120px);
   min-height: 80vh;
+  background: var(--cream, #FAF8F5);
 }
 
 .checkout-page-header {
@@ -19,23 +23,30 @@
 .checkout-page-header .section-label {
   display: block;
   margin-bottom: 10px;
+  font-family: var(--ff-sans);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sage);
+  font-weight: 500;
 }
 
 .checkout-page-header h1 {
-  font-family: var(--font-serif);
-  font-size: clamp(28px, 4vw, 44px);
+  font-family: var(--ff-serif);
+  font-size: clamp(32px, 5vw, 52px);
   font-weight: 300;
   color: var(--dark);
   margin: 0;
   letter-spacing: 0.02em;
+  font-style: italic;
 }
 
 /* ── Two-column layout ────────────────────────────────── */
 .checkout-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: clamp(32px, 5vw, 64px);
-  max-width: 1100px;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: clamp(32px, 5vw, 72px);
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 clamp(20px, 5vw, 48px);
   align-items: start;
@@ -44,60 +55,74 @@
 @media (max-width: 860px) {
   .checkout-layout {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
   .checkout-summary-col {
     order: -1;
+    position: static !important;
+    top: auto !important;
   }
 }
 
 /* ── Form sections ────────────────────────────────────── */
+.checkout-form-col {
+  background: #fff;
+  padding: clamp(24px, 4vw, 48px);
+  border: 1px solid var(--border, #e8e3de);
+  border-radius: 2px;
+}
+
 .form-section {
-  margin-bottom: clamp(32px, 5vw, 48px);
+  margin-bottom: clamp(36px, 5vw, 52px);
+}
+
+.form-section:last-of-type {
+  margin-bottom: 28px;
 }
 
 .form-section-title {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--sage);
-  margin: 0 0 20px;
-  padding-bottom: 12px;
+  margin: 0 0 24px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border, #e8e3de);
 }
 
 .form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0 24px;
+  gap: 0 28px;
 }
 
 .form-grid-3 {
   display: grid;
   grid-template-columns: 2fr 1fr 1.5fr;
-  gap: 0 16px;
+  gap: 0 20px;
 }
 
-@media (max-width: 560px) {
+@media (max-width: 600px) {
   .form-grid-2,
-  .form-grid-3 { grid-template-columns: 1fr; }
+  .form-grid-3 { grid-template-columns: 1fr; gap: 0; }
 }
 
 /* ── Form fields ──────────────────────────────────────── */
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
 .form-group label {
   display: block;
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 1.5px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
-  color: #888;
-  margin-bottom: 8px;
+  color: var(--sage);
+  margin-bottom: 10px;
 }
 
 .form-group input,
@@ -108,21 +133,31 @@
   border: none;
   border-bottom: 1px solid #d0ccc7;
   background: transparent;
-  padding: 10px 0;
-  font-family: var(--font-sans);
-  font-size: 15px;
+  padding: 12px 0;
+  font-family: var(--ff-sans);
+  font-size: 16px; /* 16px on mobile prevents iOS zoom-on-focus */
   color: var(--dark);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   appearance: none;
   -webkit-appearance: none;
   border-radius: 0;
+  min-height: 44px;
+}
+
+@media (min-width: 768px) {
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 15px;
+  }
 }
 
 .form-group textarea {
   resize: vertical;
-  min-height: 80px;
-  line-height: 1.5;
+  min-height: 88px;
+  line-height: 1.6;
+  padding: 12px 0;
 }
 
 .form-group select {
@@ -130,91 +165,113 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23818263' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 4px center;
-  padding-right: 24px;
+  padding-right: 28px;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   border-bottom-color: var(--sage);
-  /* Visible focus ring for keyboard / accessibility users */
-  outline: 2px solid rgba(129, 130, 99, 0.35);
-  outline-offset: 2px;
+  box-shadow: 0 1px 0 0 var(--sage);
+  outline: 2px solid rgba(129, 130, 99, 0.25);
+  outline-offset: 4px;
 }
 
 .form-group input.has-error,
 .form-group select.has-error,
 .form-group textarea.has-error {
   border-bottom-color: #c0635a;
+  box-shadow: 0 1px 0 0 #c0635a;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #8a8580;
+  color: #aaa59f;
   font-style: italic;
 }
 
-/* Date input — works on Chrome/Safari (webkit-calendar-picker-indicator)
-   and Firefox (which renders its own indicator we can't directly style;
-   we just ensure adequate spacing and a sage hover so the icon is obvious). */
+/* Date input — full-row tap target on mobile.
+   The native indicator is overlaid full-field so any tap opens picker. */
 .form-group input[type="date"] {
   color: var(--dark);
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23818263' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23818263' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 6px center;
-  padding-right: 28px;
+  background-position: right 4px center;
+  padding-right: 32px;
+  position: relative;
 }
 .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
-  width: 22px;
-  height: 22px;
   cursor: pointer;
+}
+/* Hide spinners on date in some browsers so the icon isn't crowded */
+.form-group input[type="date"]::-webkit-inner-spin-button,
+.form-group input[type="date"]::-webkit-clear-button {
+  display: none;
 }
 
 .form-error {
   display: none;
-  margin-top: 6px;
-  font-family: var(--font-sans);
+  margin-top: 8px;
+  font-family: var(--ff-sans);
   font-size: 12px;
   color: #c0635a;
   font-style: italic;
+  letter-spacing: 0.2px;
 }
 
 .form-error.visible { display: block; }
 
 .form-hint {
   display: block;
-  margin-top: 6px;
-  font-family: var(--font-sans);
+  margin-top: 8px;
+  font-family: var(--ff-sans);
   font-size: 11px;
-  color: #aaa;
+  color: #9a958e;
   font-style: italic;
+  letter-spacing: 0.3px;
 }
 
 /* ── Delivery radio cards ─────────────────────────────── */
 .delivery-radio-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 480px) {
   .delivery-radio-group { grid-template-columns: 1fr; }
 }
 
 .radio-card {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  border: 1px solid #e0dbd6;
-  padding: 16px;
+  gap: 14px;
+  border: 1.5px solid #e0dbd6;
+  background: #fff;
+  padding: 18px 16px;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  border-radius: 2px;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  border-radius: 3px;
   position: relative;
+  min-height: 88px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.radio-card:hover {
+  border-color: var(--sage-light, #a5a882);
+}
+
+.radio-card:focus-within {
+  outline: 2px solid rgba(129, 130, 99, 0.4);
+  outline-offset: 2px;
 }
 
 .radio-card input[type="radio"] {
@@ -222,17 +279,19 @@
   opacity: 0;
   pointer-events: none;
   width: 0;
+  height: 0;
 }
 
 .radio-card-marker {
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 1.5px solid #c0bbb5;
   border-radius: 50%;
   margin-top: 2px;
   transition: border-color 0.2s;
   position: relative;
+  background: #fff;
 }
 
 .radio-card-marker::after {
@@ -247,7 +306,7 @@
 
 .radio-card.selected {
   border-color: var(--sage);
-  background: #f5f3f0;
+  background: rgba(129, 130, 99, 0.06);
 }
 
 .radio-card.selected .radio-card-marker {
@@ -261,51 +320,57 @@
 .radio-card-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  min-width: 0;
 }
 
 .radio-card-title {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--dark);
+  letter-spacing: 0.3px;
 }
 
 .radio-card-price {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 13px;
   color: var(--sage);
   font-weight: 500;
 }
 
 .radio-card-desc {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 11px;
   color: #999;
+  line-height: 1.4;
 }
 
 /* ── Checkbox (gift) ──────────────────────────────────── */
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 14px;
   color: var(--dark);
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .checkbox-label input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 1.5px solid #c0bbb5;
   flex-shrink: 0;
   cursor: pointer;
   position: relative;
   transition: border-color 0.2s, background 0.2s;
-  border-radius: 1px;
+  border-radius: 2px;
+  background: #fff;
 }
 
 .checkbox-label input[type="checkbox"]:checked {
@@ -316,20 +381,26 @@
 .checkbox-label input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  left: 4px;
+  left: 5px;
   top: 1px;
   width: 5px;
-  height: 9px;
+  height: 10px;
   border: 1.5px solid #fff;
   border-top: none;
   border-left: none;
   transform: rotate(45deg);
 }
 
+.checkbox-label input[type="checkbox"]:focus-visible {
+  outline: 2px solid rgba(129, 130, 99, 0.5);
+  outline-offset: 2px;
+}
+
 /* ── Address fields (animated show/hide) ──────────────── */
 #address-fields {
   overflow: hidden;
   transition: opacity 0.25s, transform 0.25s;
+  margin-top: 8px;
 }
 
 #address-fields.hidden {
@@ -347,17 +418,18 @@
   border: 1px solid #f0c0bc;
   color: #c0635a;
   padding: 14px 18px;
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 14px;
   margin-bottom: 24px;
   border-radius: 2px;
+  line-height: 1.5;
 }
 
 .form-alert.visible { display: block; }
 
 /* ── Submit area ──────────────────────────────────────── */
 .checkout-actions {
-  padding-top: 8px;
+  padding-top: 12px;
 }
 
 .checkout-submit {
@@ -367,13 +439,46 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-height: 52px;
+  min-height: 56px;
+  padding: 16px 24px;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  font-family: var(--ff-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  border-radius: 2px;
+}
+
+.checkout-submit:hover:not(:disabled) {
+  background: var(--sage-dark, #6a6c51);
+  box-shadow: 0 4px 14px rgba(129, 130, 99, 0.25);
+}
+
+.checkout-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.checkout-submit:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 3px;
 }
 
 .checkout-submit:disabled {
-  opacity: 0.7;
+  opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .checkout-submit {
+    min-height: 56px;
+    font-size: 13px;
+  }
 }
 
 .btn-spinner {
@@ -396,11 +501,12 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 14px;
-  font-family: var(--font-sans);
+  margin-top: 16px;
+  font-family: var(--ff-sans);
   font-size: 11px;
-  color: #aaa;
+  color: #9a958e;
   text-align: center;
+  letter-spacing: 0.5px;
 }
 
 .checkout-secure-note svg {
@@ -415,30 +521,35 @@
 }
 
 .order-summary {
-  background: var(--off-white, #f2ede8);
+  background: var(--off-white, #F5F2EE);
   padding: clamp(24px, 4vw, 36px);
+  border-radius: 2px;
+  border: 1px solid var(--border, #e8e3de);
 }
 
 .summary-title {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--sage);
-  margin: 0 0 20px;
+  margin: 0 0 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(129, 130, 99, 0.18);
 }
 
 .summary-items {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  min-height: 32px;
 }
 
 .summary-item {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
-  padding: 8px 0;
+  gap: 14px;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
@@ -449,68 +560,79 @@
 .summary-item-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
   min-width: 0;
 }
 
 .summary-item-name {
-  font-family: var(--font-sans);
-  font-size: 13px;
+  font-family: var(--ff-serif);
+  font-size: 15px;
   color: var(--dark);
   line-height: 1.4;
+  font-weight: 400;
 }
 
 .summary-item-qty {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 11px;
   color: #999;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .summary-item-price {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 13px;
   color: var(--dark);
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .summary-divider {
   border: none;
   border-top: 1px solid rgba(0,0,0,0.1);
-  margin: 16px 0;
+  margin: 18px 0;
 }
 
 .summary-rows {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 13px;
-  color: #777;
+  color: #666;
 }
 
 .summary-row.total-row {
-  padding-top: 12px;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  margin-top: 4px;
-  font-size: 15px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  margin-top: 6px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--dark);
+  letter-spacing: 0.3px;
+}
+
+.summary-row.total-row span:last-child {
+  font-family: var(--ff-serif);
+  font-size: 20px;
+  font-weight: 500;
 }
 
 .summary-back-link {
   display: inline-block;
-  margin-top: 20px;
-  font-family: var(--font-sans);
+  margin-top: 22px;
+  font-family: var(--ff-sans);
   font-size: 12px;
-  color: #999;
+  color: #9a958e;
   text-decoration: none;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   transition: color 0.2s;
 }
 
@@ -558,14 +680,14 @@
 }
 
 .success-loading-text {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 14px;
   color: #999;
   letter-spacing: 0.5px;
 }
 
 .success-heading {
-  font-family: var(--font-serif);
+  font-family: var(--ff-serif);
   font-size: clamp(24px, 4vw, 36px);
   font-weight: 300;
   color: var(--dark);
@@ -573,7 +695,7 @@
 }
 
 .success-sub {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 15px;
   color: #777;
   max-width: 440px;
@@ -582,7 +704,7 @@
 }
 
 .order-card {
-  background: var(--off-white, #f2ede8);
+  background: var(--off-white, #F5F2EE);
   padding: clamp(24px, 4vw, 40px);
   max-width: 480px;
   width: 100%;
@@ -591,7 +713,7 @@
 }
 
 .order-card-label {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 10px;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -600,7 +722,7 @@
 }
 
 .order-card-number {
-  font-family: var(--font-serif);
+  font-family: var(--ff-serif);
   font-size: 26px;
   font-weight: 400;
   color: var(--dark);
@@ -619,7 +741,7 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 13px;
 }
 
@@ -638,7 +760,7 @@
 .order-items-list-item {
   display: flex;
   justify-content: space-between;
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 13px;
   color: var(--dark);
 }
@@ -648,7 +770,7 @@
   justify-content: space-between;
   padding-top: 12px;
   border-top: 1px solid rgba(0,0,0,0.08);
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 15px;
   font-weight: 600;
   color: var(--dark);
@@ -684,7 +806,7 @@
 }
 
 .processing-card p {
-  font-family: var(--font-sans);
+  font-family: var(--ff-sans);
   font-size: 14px;
   color: #666;
   line-height: 1.7;

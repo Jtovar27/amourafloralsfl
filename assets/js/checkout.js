@@ -2,9 +2,18 @@
    AMOURA FLORALS — checkout.js
    Handles checkout form: cart summary, validation,
    delivery toggles, and submission to /api/checkout.
+
+   Wrapped in an IIFE so top-level `cart`, `form`, etc.
+   stay local to this file. Without it they clash with
+   identically-named globals in app.js (classic scripts
+   share the same lexical environment), which throws a
+   SyntaxError and prevents the submit handler from ever
+   attaching — making the page reload on click.
 ═══════════════════════════════════════════════════ */
 
-const TAX_RATE    = 0.07;
+(function () {
+
+const TAX_RATE     = 0.07;
 const SHIPPING_FEE = 15.00;
 
 /* ── Cart ───────────────────────────────────────────── */
@@ -14,7 +23,7 @@ if (!cart.length) {
   window.location.href = 'shop.html';
 }
 
-/* ── DOM refs ───────────────────────────────────────── */
+/* ── DOM refs (defensive — script must not crash if any are absent) ─ */
 const form        = document.getElementById('checkout-form');
 const submitBtn   = document.getElementById('submit-btn');
 const btnText     = submitBtn?.querySelector('.btn-text');
@@ -24,11 +33,48 @@ const addressFlds = document.getElementById('address-fields');
 const giftFields  = document.getElementById('gift-fields');
 const isGiftBox   = document.getElementById('is-gift');
 const dateInput   = document.getElementById('delivery-date');
+const phoneInput  = document.getElementById('customer-phone');
+
+/* ── Email validation regex (stricter) ──────────────── */
+const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 /* ── Set minimum delivery date (today + 2 days) ─────── */
-const minDate = new Date();
-minDate.setDate(minDate.getDate() + 2);
-dateInput.min = minDate.toISOString().split('T')[0];
+function computeMinDateStr() {
+  const d = new Date();
+  d.setDate(d.getDate() + 2);
+  return d.toISOString().split('T')[0];
+}
+
+if (dateInput) {
+  dateInput.min = computeMinDateStr();
+  // Re-set min on focus so an overnight-stale page picks up today's correct
+  // floor before the user picks a date.
+  dateInput.addEventListener('focus', () => {
+    dateInput.min = computeMinDateStr();
+  });
+}
+
+/* ── Phone formatting ───────────────────────────────── */
+function formatPhone(raw) {
+  const digits = String(raw || '').replace(/\D/g, '').slice(0, 10);
+  if (!digits) return '';
+  if (digits.length < 4)  return `(${digits}`;
+  if (digits.length < 7)  return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6,10)}`;
+}
+
+if (phoneInput) {
+  phoneInput.setAttribute('inputmode', 'numeric');
+  phoneInput.setAttribute('maxlength', '14');
+  phoneInput.addEventListener('input', e => {
+    const cursorAtEnd = e.target.selectionStart === e.target.value.length;
+    e.target.value = formatPhone(e.target.value);
+    if (cursorAtEnd) {
+      const len = e.target.value.length;
+      e.target.setSelectionRange(len, len);
+    }
+  });
+}
 
 /* ── Order summary rendering ────────────────────────── */
 function getDeliveryMethod() {
@@ -82,10 +128,14 @@ function renderSummary() {
     }).join('');
   }
 
-  document.getElementById('summary-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-  document.getElementById('summary-shipping').textContent  = shipping > 0 ? `$${shipping.toFixed(2)}` : 'Free';
-  document.getElementById('summary-tax').textContent       = `$${tax.toFixed(2)}`;
-  document.getElementById('summary-total').textContent     = `$${total.toFixed(2)}`;
+  const subEl  = document.getElementById('summary-subtotal');
+  const shipEl = document.getElementById('summary-shipping');
+  const taxEl  = document.getElementById('summary-tax');
+  const totEl  = document.getElementById('summary-total');
+  if (subEl)  subEl.textContent  = `$${subtotal.toFixed(2)}`;
+  if (shipEl) shipEl.textContent = shipping > 0 ? `$${shipping.toFixed(2)}` : 'Free';
+  if (taxEl)  taxEl.textContent  = `$${tax.toFixed(2)}`;
+  if (totEl)  totEl.textContent  = `$${total.toFixed(2)}`;
 }
 
 /* ── Delivery method toggle ─────────────────────────── */
@@ -94,8 +144,10 @@ document.querySelectorAll('input[name="delivery_method"]').forEach(radio => {
     const isDelivery = radio.value === 'delivery';
 
     // Toggle address section
-    addressFlds.classList.toggle('hidden', !isDelivery);
-    addressFlds.setAttribute('aria-hidden', String(!isDelivery));
+    if (addressFlds) {
+      addressFlds.classList.toggle('hidden', !isDelivery);
+      addressFlds.setAttribute('aria-hidden', String(!isDelivery));
+    }
 
     // Required attributes on address inputs
     ['street', 'city', 'zip'].forEach(id => {
@@ -113,7 +165,7 @@ document.querySelectorAll('input[name="delivery_method"]').forEach(radio => {
 
 /* ── Gift toggle ────────────────────────────────────── */
 isGiftBox?.addEventListener('change', function () {
-  giftFields.style.display = this.checked ? 'block' : 'none';
+  if (giftFields) giftFields.style.display = this.checked ? 'block' : 'none';
 });
 
 /* ── Validation helpers ─────────────────────────────── */
@@ -131,27 +183,51 @@ function validateForm() {
   let ok = true;
   const method = getDeliveryMethod();
 
-  const name  = document.getElementById('customer-name').value.trim();
-  const email = document.getElementById('customer-email').value.trim();
-  const phone = document.getElementById('customer-phone').value.trim();
-  const date  = dateInput.value;
+  const name      = document.getElementById('customer-name')?.value.trim() || '';
+  const emailRaw  = document.getElementById('customer-email')?.value || '';
+  const email     = emailRaw.trim().toLowerCase();
+  const phoneRaw  = document.getElementById('customer-phone')?.value || '';
+  const phoneDigs = phoneRaw.replace(/\D/g, '');
+  const date      = dateInput?.value || '';
 
   setError('customer-name',  'error-name',  '');
   setError('customer-email', 'error-email', '');
   setError('customer-phone', 'error-phone', '');
   setError('delivery-date',  'error-date',  '');
 
-  if (!name)  { setError('customer-name',  'error-name',  'Full name is required.'); ok = false; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setError('customer-email', 'error-email', 'Valid email address is required.'); ok = false;
+  if (!name) {
+    setError('customer-name', 'error-name', 'Full name is required.');
+    ok = false;
   }
-  if (!phone) { setError('customer-phone', 'error-phone', 'Phone number is required.'); ok = false; }
-  if (!date)  { setError('delivery-date',  'error-date',  'Please select a delivery date.'); ok = false; }
+
+  if (!email || !EMAIL_RE.test(email)) {
+    setError('customer-email', 'error-email', 'Please enter a valid email address.');
+    ok = false;
+  }
+
+  if (!phoneDigs) {
+    setError('customer-phone', 'error-phone', 'Phone number is required.');
+    ok = false;
+  } else if (phoneDigs.length !== 10) {
+    setError('customer-phone', 'error-phone', 'Phone must be 10 digits.');
+    ok = false;
+  }
+
+  if (!date) {
+    setError('delivery-date', 'error-date', 'Please select a delivery date.');
+    ok = false;
+  } else {
+    const minDateStr = computeMinDateStr();
+    if (date < minDateStr) {
+      setError('delivery-date', 'error-date', 'Date must be at least 2 days from today.');
+      ok = false;
+    }
+  }
 
   if (method === 'delivery') {
-    const street = document.getElementById('street').value.trim();
-    const city   = document.getElementById('city').value.trim();
-    const zip    = document.getElementById('zip').value.trim();
+    const street = document.getElementById('street')?.value.trim() || '';
+    const city   = document.getElementById('city')?.value.trim()   || '';
+    const zip    = document.getElementById('zip')?.value.trim()    || '';
 
     setError('street', 'error-street', '');
     setError('city',   'error-city',   '');
@@ -160,7 +236,8 @@ function validateForm() {
     if (!street) { setError('street', 'error-street', 'Street address is required.'); ok = false; }
     if (!city)   { setError('city',   'error-city',   'City is required.'); ok = false; }
     if (!zip || !/^\d{5}(-\d{4})?$/.test(zip)) {
-      setError('zip', 'error-zip', 'Valid 5-digit ZIP code is required.'); ok = false;
+      setError('zip', 'error-zip', 'Valid 5-digit ZIP code is required.');
+      ok = false;
     }
   }
 
@@ -199,12 +276,17 @@ form?.addEventListener('submit', async e => {
   if (!validateForm()) return;
 
   isSubmitting = true;
-  submitBtn.disabled  = true;
-  btnText.textContent = 'Processing…';
-  btnSpinner.style.display = 'inline-block';
+  if (submitBtn)   submitBtn.disabled  = true;
+  if (btnText)     btnText.textContent = 'Processing…';
+  if (btnSpinner)  btnSpinner.style.display = 'inline-block';
 
   const method = getDeliveryMethod();
   const isGift = isGiftBox?.checked || false;
+
+  // Phone — send formatted (XXX) XXX-XXXX for nicer admin display
+  const phoneRaw  = document.getElementById('customer-phone')?.value || '';
+  const phoneDigs = phoneRaw.replace(/\D/g, '');
+  const phoneFmt  = formatPhone(phoneDigs);
 
   const payload = {
     items: cart.map(i => ({
@@ -214,8 +296,8 @@ form?.addEventListener('submit', async e => {
     })),
     customer: {
       name:  document.getElementById('customer-name').value.trim(),
-      email: document.getElementById('customer-email').value.trim(),
-      phone: document.getElementById('customer-phone').value.trim(),
+      email: document.getElementById('customer-email').value.trim().toLowerCase(),
+      phone: phoneFmt,
     },
     delivery: {
       method,
@@ -255,12 +337,14 @@ form?.addEventListener('submit', async e => {
 
   } catch (err) {
     showFormAlert(err.message);
-    isSubmitting          = false;
-    submitBtn.disabled    = false;
-    btnText.textContent   = 'Continue to Payment';
-    btnSpinner.style.display = 'none';
+    isSubmitting = false;
+    if (submitBtn)  submitBtn.disabled = false;
+    if (btnText)    btnText.textContent = 'Continue to Payment';
+    if (btnSpinner) btnSpinner.style.display = 'none';
   }
 });
 
 /* ── Init ───────────────────────────────────────────── */
 renderSummary();
+
+})();

@@ -3,7 +3,15 @@
    Polls /api/order-status until payment is confirmed,
    then renders order details. Does NOT assume payment
    success just because the user landed here.
+
+   IIFE-wrapped so top-level `const` / `let` declarations
+   here can't collide with app.js (classic scripts share
+   one lexical environment — a name clash there throws
+   SyntaxError and prevents this whole script from
+   running, which previously broke the checkout flow).
 ═══════════════════════════════════════════════════ */
+
+(function () {
 
 const MAX_ATTEMPTS   = 20;
 const POLL_INTERVAL  = 1500; // ms
@@ -111,3 +119,5 @@ pollOrderStatus().then(order => {
     renderProcessing();
   }
 });
+
+})();
