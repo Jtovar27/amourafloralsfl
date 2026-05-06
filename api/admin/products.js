@@ -7,7 +7,7 @@ function slugify(t) {
   return t.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
 }
 
-const VALID_CATEGORIES = ['bouquets', 'floral-boxes', 'balloons', 'gifts'];
+const VALID_CATEGORIES = ['bouquets', 'floral-boxes', 'vase-arrangements', 'balloons', 'gifts'];
 
 const ADDON_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const MAX_ADDONS = 20;

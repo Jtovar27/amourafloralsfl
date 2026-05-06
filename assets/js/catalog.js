@@ -16,10 +16,11 @@
     : '/api/products?category=' + encodeURIComponent(category);
 
   var CATEGORY_LABELS = {
-    'bouquets':     'Bouquets',
-    'floral-boxes': 'Floral Boxes',
-    'balloons':     'Balloons',
-    'gifts':        'Gifts'
+    'bouquets':          'Bouquets',
+    'floral-boxes':      'Floral Boxes',
+    'vase-arrangements': 'Vase Arrangements',
+    'balloons':          'Balloons',
+    'gifts':             'Gifts / Add-ons'
   };
 
   function formatPrice(cents) {

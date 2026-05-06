@@ -560,9 +560,11 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   background: var(--sage);
   display: flex;
   flex-direction: column;
-  padding: 2rem var(--gutter);
+  padding: 2rem var(--gutter) 4rem;
   transform: translateX(100%);
   transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-menu.open { transform: translateX(0); }
@@ -684,7 +686,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 }
 
 .mm-shop-sub.open {
-  max-height: 22rem;
+  max-height: 32rem;
 }
 
 .mm-shop-sub a {
