@@ -149,6 +149,12 @@
           <button type="button" class="btn btn-ghost btn-sm" id="btn-add-addon" style="margin-top:.6rem">+ Add Option</button>
         </div>
         <div class="form-group">
+          <label>Size Variants (optional)</label>
+          <p class="form-hint">If this product comes in multiple sizes, list them here. The customer must pick one — base price below is ignored when variants exist.</p>
+          <div class="variants-list" id="variants-list" aria-live="polite"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-add-variant" style="margin-top:.6rem">+ Add Size</button>
+        </div>
+        <div class="form-group">
           <label>Product Image</label>
           <div class="image-upload-wrap">
             <div class="image-upload-zone" id="image-upload-zone" data-state="empty">
@@ -182,6 +188,13 @@
             <input type="hidden" id="f-image" />
             <div class="form-error" id="err-image"></div>
           </div>
+        </div>
+        <div class="form-group">
+          <label>Additional Gallery Photos (optional)</label>
+          <p class="form-hint">Extra angles or detail shots that show on the product page. The main photo above is the cover.</p>
+          <div class="gallery-grid" id="gallery-grid" aria-live="polite"></div>
+          <input type="file" id="gallery-file-input" accept="image/*" multiple hidden />
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-add-gallery-photo" style="margin-top:.6rem">+ Add Photo</button>
         </div>
         <div class="form-row">
           <div class="form-group">

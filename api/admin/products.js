@@ -14,6 +14,51 @@ const MAX_ADDONS = 20;
 const MAX_ADDON_PRICE_CENTS = 1_000_000;
 const MAX_ADDON_NAME_LEN = 80;
 
+function sanitizeGallery(input) {
+  if (!Array.isArray(input)) return [];
+  if (input.length > 12) {
+    throw Object.assign(new Error('No more than 12 gallery images allowed.'), { status: 400 });
+  }
+  // Each entry must be a non-empty string ≤ 500 chars
+  return input
+    .filter(x => typeof x === 'string' && x.trim().length > 0)
+    .map(x => x.trim().slice(0, 500))
+    .filter(x => x.length > 0);
+}
+
+function sanitizeVariants(input) {
+  if (!Array.isArray(input)) return [];
+  if (input.length > 8) {
+    throw Object.assign(new Error('No more than 8 size variants allowed.'), { status: 400 });
+  }
+  const out = [];
+  const seenLabels = new Set();
+  for (const raw of input) {
+    if (!raw || typeof raw !== 'object') continue;
+    const label = typeof raw.label === 'string' ? raw.label.trim().slice(0, 60) : '';
+    if (!label) continue;
+    const lc = label.toLowerCase();
+    if (seenLabels.has(lc)) {
+      throw Object.assign(new Error('Variant labels must be unique.'), { status: 400 });
+    }
+    seenLabels.add(lc);
+
+    let id = typeof raw.id === 'string' ? raw.id : '';
+    if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) {
+      id = 'v_' + (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
+    }
+
+    let pc = Number(raw.price_cents);
+    if (!Number.isFinite(pc) || !Number.isInteger(pc) || pc < 1) {
+      throw Object.assign(new Error('Variant price must be a positive whole number of cents.'), { status: 400 });
+    }
+    if (pc > 10_000_000) pc = 10_000_000;
+
+    out.push({ id, label, price_cents: pc });
+  }
+  return out;
+}
+
 function sanitizeAddons(input) {
   if (!Array.isArray(input)) return [];
   if (input.length > MAX_ADDONS) {
@@ -96,19 +141,29 @@ module.exports = async function handler(req, res) {
     try { cleanAddons = sanitizeAddons(body.addons); }
     catch (err) { return res.status(err.status || 400).json({ error: err.message }); }
 
+    let cleanGallery, cleanVariants;
+    try {
+      cleanGallery  = sanitizeGallery(body.gallery_images);
+      cleanVariants = sanitizeVariants(body.variants);
+    } catch (err) {
+      return res.status(err.status || 400).json({ error: err.message });
+    }
+
     const { data, error } = await supabase
       .from('products')
       .insert({
-        name:        name.trim(),
-        slug:        slugify(name.trim()),
-        description: description?.trim() || null,
-        price:       priceInt,
+        name:           name.trim(),
+        slug:           slugify(name.trim()),
+        description:    description?.trim() || null,
+        price:          priceInt,
         category,
-        image_url:   image_url?.trim()   || null,
-        featured:    Boolean(featured),
-        active:      active !== false,
-        sort_order:  parseInt(sort_order, 10) || 0,
-        addons:      cleanAddons,
+        image_url:      image_url?.trim()   || null,
+        featured:       Boolean(featured),
+        active:         active !== false,
+        sort_order:     parseInt(sort_order, 10) || 0,
+        addons:         cleanAddons,
+        gallery_images: cleanGallery,
+        variants:       cleanVariants,
       })
       .select()
       .single();
@@ -152,6 +207,14 @@ module.exports = async function handler(req, res) {
     if (updates.sort_order !== undefined) patch.sort_order = parseInt(updates.sort_order, 10) || 0;
     if (updates.addons     !== undefined) {
       try { patch.addons = sanitizeAddons(updates.addons); }
+      catch (err) { return res.status(err.status || 400).json({ error: err.message }); }
+    }
+    if (updates.gallery_images !== undefined) {
+      try { patch.gallery_images = sanitizeGallery(updates.gallery_images); }
+      catch (err) { return res.status(err.status || 400).json({ error: err.message }); }
+    }
+    if (updates.variants !== undefined) {
+      try { patch.variants = sanitizeVariants(updates.variants); }
       catch (err) { return res.status(err.status || 400).json({ error: err.message }); }
     }
 

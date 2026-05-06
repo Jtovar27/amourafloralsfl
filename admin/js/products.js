@@ -7,10 +7,17 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 let allProducts = [];
 let filteredProducts = [];
 let isUploadingImage = false;
+let isGalleryUploading = false;
 let addonsState = [];
+let variantsState = [];
+let galleryState = [];
 
 function genAddonId() {
   return 'a_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+function genVariantId() {
+  return 'v_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
 
 function renderAddons() {
@@ -85,6 +92,220 @@ function handleAddonsListClick(e) {
   if (!Number.isFinite(idx)) return;
   addonsState.splice(idx, 1);
   renderAddons();
+}
+
+// ── Variants editor ─────────────────────────────────────────────────────────
+
+function renderVariants() {
+  const container = document.getElementById('variants-list');
+  if (!container) return;
+
+  if (!variantsState.length) {
+    container.innerHTML = `<p class="variants-empty">No size variants. Click "+ Add Size" to add one.</p>`;
+    return;
+  }
+
+  container.innerHTML = variantsState.map((v, i) => {
+    const priceUsd = ((v.price_cents || 0) / 100).toFixed(2);
+    return `
+      <div class="variant-row" data-variant-index="${i}">
+        <div class="variant-name">
+          <input type="text" data-variant-key="label" placeholder="e.g. Small / Medium / Large" value="${escapeHtml(v.label || '')}" />
+        </div>
+        <div class="variant-price">
+          <span class="variant-price-prefix">$</span>
+          <input type="number" data-variant-key="price" min="0" step="0.01" placeholder="0.00" value="${escapeHtml(priceUsd)}" />
+        </div>
+        <div class="variant-remove">
+          <button type="button" class="btn-icon" data-variant-key="remove" title="Remove variant" aria-label="Remove variant">
+            <svg width="14" height="14" fill="none" stroke="#ef4444" stroke-width="1.6" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addVariant() {
+  variantsState.push({ id: genVariantId(), label: '', price_cents: 0 });
+  renderVariants();
+  const container = document.getElementById('variants-list');
+  if (container) {
+    const inputs = container.querySelectorAll('input[data-variant-key="label"]');
+    const last = inputs[inputs.length - 1];
+    if (last) last.focus();
+  }
+}
+
+function handleVariantsListInput(e) {
+  const target = e.target;
+  if (!target.matches('input[data-variant-key]')) return;
+  const row = target.closest('.variant-row');
+  if (!row) return;
+  const idx = parseInt(row.dataset.variantIndex, 10);
+  if (!Number.isFinite(idx) || !variantsState[idx]) return;
+
+  const key = target.dataset.variantKey;
+  if (key === 'label') {
+    variantsState[idx].label = target.value;
+  } else if (key === 'price') {
+    const cents = Math.round(parseFloat(target.value) * 100);
+    variantsState[idx].price_cents = Number.isFinite(cents) ? Math.max(0, cents) : 0;
+  }
+}
+
+function handleVariantsListClick(e) {
+  const btn = e.target.closest('button[data-variant-key="remove"]');
+  if (!btn) return;
+  const row = btn.closest('.variant-row');
+  if (!row) return;
+  const idx = parseInt(row.dataset.variantIndex, 10);
+  if (!Number.isFinite(idx)) return;
+  variantsState.splice(idx, 1);
+  renderVariants();
+}
+
+// ── Gallery photos uploader ─────────────────────────────────────────────────
+
+function renderGallery() {
+  const container = document.getElementById('gallery-grid');
+  if (!container) return;
+
+  container.innerHTML = galleryState.map((url, i) => {
+    if (!url) {
+      // Placeholder tile for an in-flight upload
+      return `
+        <div class="gallery-tile" data-gallery-index="${i}">
+          <div class="gallery-tile-uploading"><div class="spinner"></div>Uploading</div>
+        </div>
+      `;
+    }
+    return `
+      <div class="gallery-tile" data-gallery-index="${i}">
+        <img src="${escapeHtml(url)}" alt="Gallery photo ${i + 1}" loading="lazy" />
+        <button type="button" class="gallery-tile-remove" data-gallery-key="remove" title="Remove photo" aria-label="Remove photo">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function setGalleryUploadingState(uploading) {
+  isGalleryUploading = uploading;
+  const saveBtn = document.getElementById('btn-save-product');
+  if (saveBtn) {
+    if (uploading) {
+      if (!saveBtn.dataset.prevText) saveBtn.dataset.prevText = saveBtn.textContent;
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Uploading photo…';
+    } else if (!isUploadingImage) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = saveBtn.dataset.prevText || 'Save Product';
+      delete saveBtn.dataset.prevText;
+    }
+  }
+}
+
+async function uploadOneGalleryFile(file) {
+  // Soft size check — accept any image MIME the OS allowed through.
+  if (file.size > 25 * 1024 * 1024) {
+    showToast(`"${file.name}" is over 25 MB. Skipped.`, 'error');
+    return null;
+  }
+  if (file.type && !file.type.startsWith('image/')) {
+    showToast(`"${file.name}" is not an image. Skipped.`, 'error');
+    return null;
+  }
+
+  // Push a placeholder tile so the user sees a spinner immediately.
+  const placeholderIdx = galleryState.length;
+  galleryState.push('');
+  renderGallery();
+
+  try {
+    const processed = await preprocessImage(file);
+    const sb = await getSupabaseClient();
+    const baseName = (processed.name || file.name || 'photo.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const safeName = `${Date.now()}-${baseName}`;
+    const contentType = processed.type || file.type || 'application/octet-stream';
+
+    const uploadPromise = sb.storage.from(MEDIA_BUCKET).upload(safeName, processed, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType,
+    });
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Upload timed out.')), 30000);
+    });
+
+    const result = await Promise.race([uploadPromise, timeoutPromise]);
+    if (result && result.error) throw result.error;
+
+    const { data: pub } = sb.storage.from(MEDIA_BUCKET).getPublicUrl(safeName);
+    const publicUrl = pub?.publicUrl;
+    if (!publicUrl) throw new Error('Could not resolve public URL.');
+
+    // Replace the placeholder slot with the real URL (placeholder may have moved if user removed others)
+    if (galleryState[placeholderIdx] === '') {
+      galleryState[placeholderIdx] = publicUrl;
+    } else {
+      galleryState.push(publicUrl);
+    }
+    renderGallery();
+    return publicUrl;
+  } catch (err) {
+    console.error('Gallery upload failed:', err);
+    // Drop the placeholder for this file
+    if (galleryState[placeholderIdx] === '') galleryState.splice(placeholderIdx, 1);
+    renderGallery();
+    const msg = err?.message || err?.error?.message || 'Upload failed.';
+    showToast(`Photo upload failed: ${msg}`, 'error');
+    return null;
+  }
+}
+
+async function addGalleryFiles(files) {
+  if (!files || !files.length) return;
+  setGalleryUploadingState(true);
+  try {
+    for (const file of files) {
+      // Sequential to keep order predictable and to avoid hammering Supabase
+      // eslint-disable-next-line no-await-in-loop
+      await uploadOneGalleryFile(file);
+    }
+    showToast('Gallery updated.', 'success');
+  } finally {
+    setGalleryUploadingState(false);
+  }
+}
+
+function removeGalleryAt(idx) {
+  if (!Number.isFinite(idx) || idx < 0 || idx >= galleryState.length) return;
+  galleryState.splice(idx, 1);
+  renderGallery();
+}
+
+function handleGalleryGridClick(e) {
+  const btn = e.target.closest('button[data-gallery-key="remove"]');
+  if (!btn) return;
+  const tile = btn.closest('.gallery-tile');
+  if (!tile) return;
+  const idx = parseInt(tile.dataset.galleryIndex, 10);
+  removeGalleryAt(idx);
+}
+
+function setupGalleryUploader() {
+  const addBtn = document.getElementById('btn-add-gallery-photo');
+  const fileIn = document.getElementById('gallery-file-input');
+  const grid   = document.getElementById('gallery-grid');
+  if (!addBtn || !fileIn || !grid) return;
+
+  addBtn.addEventListener('click', () => fileIn.click());
+  fileIn.addEventListener('change', async () => {
+    const files = Array.from(fileIn.files || []);
+    fileIn.value = ''; // allow re-selecting the same file
+    if (files.length) await addGalleryFiles(files);
+  });
+  grid.addEventListener('click', handleGalleryGridClick);
 }
 
 async function loadProducts() {
@@ -253,6 +474,10 @@ function openAddModal() {
   document.getElementById('f-featured').checked  = false;
   addonsState = [];
   renderAddons();
+  variantsState = [];
+  renderVariants();
+  galleryState = [];
+  renderGallery();
   setImagePreview('');
   clearErrors();
   openModal('product-modal');
@@ -274,6 +499,10 @@ function openEditModal(id) {
   document.getElementById('f-featured').checked      = p.featured;
   addonsState = Array.isArray(p.addons) ? JSON.parse(JSON.stringify(p.addons)) : [];
   renderAddons();
+  variantsState = Array.isArray(p.variants) ? JSON.parse(JSON.stringify(p.variants)) : [];
+  renderVariants();
+  galleryState = Array.isArray(p.gallery_images) ? p.gallery_images.slice() : [];
+  renderGallery();
   setImagePreview(p.image_url || '');
   clearErrors();
   openModal('product-modal');
@@ -507,6 +736,10 @@ async function saveProduct() {
     showToast('Image is still uploading. Wait a moment.', 'info');
     return;
   }
+  if (isGalleryUploading) {
+    showToast('Gallery photos are still uploading. Wait a moment.', 'info');
+    return;
+  }
 
   // Sanitize add-ons
   const cleanAddons = addonsState
@@ -533,17 +766,41 @@ async function saveProduct() {
     seenNames.add(key);
   }
 
+  // Sanitize variants — drop blanks/zero prices, validate uniqueness
+  const cleanVariants = variantsState
+    .map(v => ({
+      id: v.id || genVariantId(),
+      label: (v.label || '').trim(),
+      price_cents: Number.isFinite(v.price_cents) ? Math.max(0, Math.round(v.price_cents)) : 0,
+    }))
+    .filter(v => v.label && v.price_cents > 0);
+
+  const seenLabels = new Set();
+  for (const v of cleanVariants) {
+    const key = v.label.toLowerCase();
+    if (seenLabels.has(key)) {
+      showToast('Variant labels must be unique.', 'error');
+      return;
+    }
+    seenLabels.add(key);
+  }
+
+  // Filter gallery to non-empty URLs (placeholders during upload are blank strings)
+  const cleanGallery = galleryState.filter(u => typeof u === 'string' && u.trim());
+
   const priceCents = Math.round(parseFloat(priceStr) * 100);
   const payload = {
     name,
-    price:       priceCents,
+    price:          priceCents,
     category,
-    description: document.getElementById('f-description').value.trim() || null,
-    image_url:   document.getElementById('f-image').value.trim()       || null,
-    sort_order:  parseInt(document.getElementById('f-sort').value, 10) || 0,
-    active:      document.getElementById('f-active').checked,
-    featured:    document.getElementById('f-featured').checked,
-    addons:      cleanAddons,
+    description:    document.getElementById('f-description').value.trim() || null,
+    image_url:      document.getElementById('f-image').value.trim()       || null,
+    sort_order:     parseInt(document.getElementById('f-sort').value, 10) || 0,
+    active:         document.getElementById('f-active').checked,
+    featured:       document.getElementById('f-featured').checked,
+    addons:         cleanAddons,
+    variants:       cleanVariants,
+    gallery_images: cleanGallery,
   };
 
   const btn = document.getElementById('btn-save-product');
@@ -617,6 +874,14 @@ async function deleteProduct(id, name) {
   addonsListEl.addEventListener('input',  handleAddonsListInput);
   addonsListEl.addEventListener('change', handleAddonsListInput);
   addonsListEl.addEventListener('click',  handleAddonsListClick);
+
+  document.getElementById('btn-add-variant').addEventListener('click', addVariant);
+  const variantsListEl = document.getElementById('variants-list');
+  variantsListEl.addEventListener('input',  handleVariantsListInput);
+  variantsListEl.addEventListener('change', handleVariantsListInput);
+  variantsListEl.addEventListener('click',  handleVariantsListClick);
+
+  setupGalleryUploader();
 
   const searchInput      = document.getElementById('search-input');
   const filterCategory   = document.getElementById('filter-category');

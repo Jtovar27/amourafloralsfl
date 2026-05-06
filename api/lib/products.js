@@ -2,16 +2,16 @@
 
 // Static fallback — used only if DB is unreachable
 const PRODUCTS_STATIC = {
-  '1':  { id: '1',  name: 'Blushing Bride Bridal Bouquet', priceCents: 24500, category: 'bouquets',     addons: [] },
-  '2':  { id: '2',  name: 'Garden Romance Bouquet',         priceCents:  8500, category: 'bouquets',     addons: [] },
-  '3':  { id: '3',  name: 'Sage & Bloom Floral Box',        priceCents: 15500, category: 'floral-boxes', addons: [] },
-  '4':  { id: '4',  name: 'Peach Petal Dreams',             priceCents:  7500, category: 'bouquets',     addons: [] },
-  '5':  { id: '5',  name: 'Rose Garden Luxury Box',         priceCents: 18500, category: 'floral-boxes', addons: [] },
-  '6':  { id: '6',  name: 'Celebration Balloon Bouquet',    priceCents:  5500, category: 'balloons',     addons: [] },
-  '7':  { id: '7',  name: 'Floral & Balloon Bundle',        priceCents:  9500, category: 'balloons',     addons: [] },
-  '8':  { id: '8',  name: 'Sun-Kissed Wrapped Blooms',      priceCents:  6500, category: 'gifts',        addons: [] },
-  '9':  { id: '9',  name: 'Lush Greenery Floral Box',       priceCents: 12000, category: 'floral-boxes', addons: [] },
-  '10': { id: '10', name: 'Wildflower Love Bundle',          priceCents:  9500, category: 'gifts',        addons: [] },
+  '1':  { id: '1',  name: 'Blushing Bride Bridal Bouquet', priceCents: 24500, category: 'bouquets',     addons: [], variants: [] },
+  '2':  { id: '2',  name: 'Garden Romance Bouquet',         priceCents:  8500, category: 'bouquets',     addons: [], variants: [] },
+  '3':  { id: '3',  name: 'Sage & Bloom Floral Box',        priceCents: 15500, category: 'floral-boxes', addons: [], variants: [] },
+  '4':  { id: '4',  name: 'Peach Petal Dreams',             priceCents:  7500, category: 'bouquets',     addons: [], variants: [] },
+  '5':  { id: '5',  name: 'Rose Garden Luxury Box',         priceCents: 18500, category: 'floral-boxes', addons: [], variants: [] },
+  '6':  { id: '6',  name: 'Celebration Balloon Bouquet',    priceCents:  5500, category: 'balloons',     addons: [], variants: [] },
+  '7':  { id: '7',  name: 'Floral & Balloon Bundle',        priceCents:  9500, category: 'balloons',     addons: [], variants: [] },
+  '8':  { id: '8',  name: 'Sun-Kissed Wrapped Blooms',      priceCents:  6500, category: 'gifts',        addons: [], variants: [] },
+  '9':  { id: '9',  name: 'Lush Greenery Floral Box',       priceCents: 12000, category: 'floral-boxes', addons: [], variants: [] },
+  '10': { id: '10', name: 'Wildflower Love Bundle',          priceCents:  9500, category: 'gifts',        addons: [], variants: [] },
 };
 
 const MAX_QTY_PER_ITEM = 20;
@@ -23,7 +23,7 @@ async function loadProductsFromDB() {
     const supabase = getSupabase();
     const { data, error } = await supabase
       .from('products')
-      .select('id, name, price, category, addons')
+      .select('id, name, price, category, addons, variants')
       .eq('active', true);
     if (error || !data || data.length === 0) return null;
     const map = {};
@@ -33,7 +33,8 @@ async function loadProductsFromDB() {
         name:       p.name,
         priceCents: p.price,
         category:   p.category,
-        addons:     Array.isArray(p.addons) ? p.addons : [],
+        addons:     Array.isArray(p.addons)   ? p.addons   : [],
+        variants:   Array.isArray(p.variants) ? p.variants : [],
       };
     }
     return map;
@@ -65,6 +66,43 @@ async function validateAndPriceItems(rawItems) {
 
     const product = PRODUCTS[id];
 
+    // Variant resolution — must run BEFORE addon processing so basePriceCents
+    // is set correctly. Products with a non-empty variants[] REQUIRE a
+    // variantId; products without variants silently ignore any variantId the
+    // client may have stuffed in (don't fail the cart over a stale client).
+    const variantId = typeof item.variantId === 'string' ? item.variantId.trim() : '';
+    let selectedVariant = null;
+    let basePriceCents  = product.priceCents;
+
+    if (Array.isArray(product.variants) && product.variants.length > 0) {
+      // Product has variants — variantId is REQUIRED
+      if (!variantId) {
+        throw Object.assign(
+          new Error(`Please select a size for "${product.name}".`),
+          { status: 400 }
+        );
+      }
+      const v = product.variants.find(x => x && x.id === variantId);
+      if (!v) {
+        throw Object.assign(
+          new Error(`Selected size for "${product.name}" is no longer available. Please refresh and try again.`),
+          { status: 400 }
+        );
+      }
+      const vPrice = parseInt(v.price_cents, 10);
+      if (!Number.isInteger(vPrice) || vPrice < 1) {
+        throw Object.assign(
+          new Error(`Pricing error on "${product.name}". Please refresh.`),
+          { status: 400 }
+        );
+      }
+      basePriceCents = vPrice;
+      selectedVariant = { label: String(v.label), price_cents: vPrice };
+    } else if (variantId) {
+      // No variants on product, but client sent a variantId — silently ignore
+      selectedVariant = null;
+    }
+
     // Validate + snapshot addons (server is the source of truth for name + price)
     const rawAddons = Array.isArray(item.addons) ? item.addons : [];
     if (rawAddons.length > MAX_ADDONS_PER_ITEM) {
@@ -95,17 +133,18 @@ async function validateAndPriceItems(rawItems) {
       addonsSumCents += priceCents;
     }
 
-    const unitPriceCents = product.priceCents + addonsSumCents;
+    const unitPriceCents = basePriceCents + addonsSumCents;
     const lineTotal      = unitPriceCents * qty;
     subtotalCents       += lineTotal;
 
     validatedItems.push({
-      product_id:      product.id,
-      product_name:    product.name,
-      unit_price:      unitPriceCents,    // BASE + ADDONS SUM
-      quantity:        qty,
-      line_total:      lineTotal,
-      selected_addons: selectedAddons,    // [{ name, price_cents }]
+      product_id:       product.id,
+      product_name:     product.name,
+      unit_price:       unitPriceCents,    // (variant or base) + ADDONS SUM
+      quantity:         qty,
+      line_total:       lineTotal,
+      selected_addons:  selectedAddons,    // [{ name, price_cents }]
+      selected_variant: selectedVariant,   // { label, price_cents } or null
     });
   }
 

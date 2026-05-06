@@ -25,6 +25,9 @@ function itemRows(items) {
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   return items.map(i => {
     const addons = Array.isArray(i.selected_addons) ? i.selected_addons : [];
+    const variantSuffix = i.selected_variant && i.selected_variant.label
+      ? ` <span style="color:#818263;font-style:italic;font-size:12px;">— ${esc(i.selected_variant.label)}</span>`
+      : '';
     const addonRow = addons.length
       ? `
     <tr>
@@ -33,7 +36,7 @@ function itemRows(items) {
       : '';
     return `
     <tr>
-      <td style="padding:10px 0;border-bottom:${addons.length ? 'none' : '1px solid #f0ede9'};color:#1a1714;font-size:14px;font-family:Helvetica,Arial,sans-serif;">${i.product_name}</td>
+      <td style="padding:10px 0;border-bottom:${addons.length ? 'none' : '1px solid #f0ede9'};color:#1a1714;font-size:14px;font-family:Helvetica,Arial,sans-serif;">${esc(i.product_name)}${variantSuffix}</td>
       <td style="padding:10px 0;border-bottom:${addons.length ? 'none' : '1px solid #f0ede9'};color:#888;text-align:center;font-size:14px;font-family:Helvetica,Arial,sans-serif;">×${i.quantity}</td>
       <td style="padding:10px 0;border-bottom:${addons.length ? 'none' : '1px solid #f0ede9'};color:#1a1714;text-align:right;font-size:14px;font-family:Helvetica,Arial,sans-serif;">${cents(i.line_total)}</td>
     </tr>${addonRow}`;
@@ -167,7 +170,10 @@ async function sendAdminNotification(order, items) {
   }
   const lines = items.map(i => {
     const addons = Array.isArray(i.selected_addons) ? i.selected_addons : [];
-    const base = `  • ${i.product_name} ×${i.quantity} — ${cents(i.line_total)}`;
+    const variantTag = i.selected_variant && i.selected_variant.label
+      ? ` (${i.selected_variant.label})`
+      : '';
+    const base = `  • ${i.product_name}${variantTag} ×${i.quantity} — ${cents(i.line_total)}`;
     if (!addons.length) return base;
     const addonLines = addons.map(a => `    + ${a.name} (${cents(a.price_cents)})`).join('\n');
     return `${base}\n${addonLines}`;

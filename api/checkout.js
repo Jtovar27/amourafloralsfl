@@ -166,17 +166,22 @@ module.exports = async function handler(req, res) {
   }
 
   // Build Stripe line items (exact breakdown shown at checkout).
-  // Append selected add-on names to the product name so customers see exactly
-  // what they're buying. unit_price already includes the addon price sum
-  // (computed server-side in validateAndPriceItems — never trust client prices).
+  // Append the variant label (when present) and selected add-on names to the
+  // product name so customers see exactly what they're buying. unit_price
+  // already includes the variant base + addon price sum (computed server-side
+  // in validateAndPriceItems — never trust client prices).
   const lineItems = validatedItems.map(i => {
-    const nameWithAddons = i.product_name + ((i.selected_addons || []).length
+    const variantSuffix = i.selected_variant && i.selected_variant.label
+      ? ` — ${i.selected_variant.label}`
+      : '';
+    const addonsSuffix = (i.selected_addons || []).length
       ? ' (+ ' + i.selected_addons.map(a => a.name).join(', + ') + ')'
-      : '');
+      : '';
+    const stripeName = i.product_name + variantSuffix + addonsSuffix;
     return {
       price_data: {
         currency:     'usd',
-        product_data: { name: nameWithAddons },
+        product_data: { name: stripeName },
         unit_amount:  i.unit_price,
       },
       quantity: i.quantity,
