@@ -461,6 +461,19 @@ async function reorderProduct(productId, direction) {
   }
 }
 
+function updateSubcategoryVisibility() {
+  const cat = document.getElementById('f-category').value;
+  const grp = document.getElementById('subcategory-group');
+  if (!grp) return;
+  if (cat === 'gifts') {
+    grp.hidden = false;
+  } else {
+    grp.hidden = true;
+    const sel = document.getElementById('f-subcategory');
+    if (sel) sel.value = '';
+  }
+}
+
 function openAddModal() {
   document.getElementById('modal-title').textContent = 'Add Product';
   document.getElementById('edit-id').value = '';
@@ -472,6 +485,8 @@ function openAddModal() {
   document.getElementById('f-sort').value        = '0';
   document.getElementById('f-active').checked    = true;
   document.getElementById('f-featured').checked  = false;
+  document.getElementById('f-subcategory').value = '';
+  updateSubcategoryVisibility();
   addonsState = [];
   renderAddons();
   variantsState = [];
@@ -497,6 +512,8 @@ function openEditModal(id) {
   document.getElementById('f-sort').value            = p.sort_order;
   document.getElementById('f-active').checked        = p.active;
   document.getElementById('f-featured').checked      = p.featured;
+  document.getElementById('f-subcategory').value     = p.subcategory || '';
+  updateSubcategoryVisibility();
   addonsState = Array.isArray(p.addons) ? JSON.parse(JSON.stringify(p.addons)) : [];
   renderAddons();
   variantsState = Array.isArray(p.variants) ? JSON.parse(JSON.stringify(p.variants)) : [];
@@ -801,6 +818,7 @@ async function saveProduct() {
     addons:         cleanAddons,
     variants:       cleanVariants,
     gallery_images: cleanGallery,
+    subcategory:    document.getElementById('f-subcategory').value || null,
   };
 
   const btn = document.getElementById('btn-save-product');
@@ -889,6 +907,10 @@ async function deleteProduct(id, name) {
   searchInput.addEventListener('input',    debounce(applyFilter, 280));
   filterCategory.addEventListener('change', applyFilter);
   if (filterBestseller) filterBestseller.addEventListener('change', applyFilter);
+
+  // Toggle subcategory dropdown visibility based on category selection
+  const fCategoryEl = document.getElementById('f-category');
+  if (fCategoryEl) fCategoryEl.addEventListener('change', updateSubcategoryVisibility);
 
   // Event delegation: row action buttons (edit / toggle active / delete).
   // Replaces inline onclick="…" — values like product names are user-controlled

@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,300;0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,300;1,6..96,400;1,6..96,500&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body class="inner-page" data-catalog="gifts">
+<body class="inner-page">
 
   <!-- ANNOUNCEMENT BAR -->
   <div class="announcement-bar" id="announcement-bar">
@@ -88,37 +88,66 @@
 
   <!-- CATALOG -->
   <section class="catalog-section">
-    <div class="catalog-grid" id="catalog-grid">
+    <div class="gifts-page" id="gifts-page">
 
-      <div class="product-card" data-reveal data-delay="1">
-        <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=85" alt="Sun-Kissed Wrapped Blooms" loading="lazy" />
-        </div>
-        <div class="product-info">
-          <p class="product-category">Add-ons</p>
-          <h3 class="product-name">Sun-Kissed Wrapped Blooms</h3>
-          <p class="product-price">$65</p>
-        </div>
-        <button class="quick-add" data-id="8" data-name="Sun-Kissed Wrapped Blooms" data-price="65">Add to Cart</button>
+      <div class="gifts-loading" id="gifts-loading">
+        <div class="loading-ring" aria-hidden="true"></div>
       </div>
 
-      <div class="product-card" data-reveal data-delay="2">
-        <div class="product-img-wrap">
-          <img src="https://images.unsplash.com/photo-1453906971074-ce568cccbc63?auto=format&fit=crop&w=600&q=85" alt="Wildflower Love Bundle" loading="lazy" />
+      <!-- Group 1: Gifts -->
+      <div class="gifts-group" data-group="gifts" hidden>
+        <header class="gifts-group-header">
+          <span class="section-label">Gifts</span>
+          <h2 class="gifts-group-title"><em>Treats &amp; Surprises</em></h2>
+        </header>
+        <div class="gifts-bucket" data-subcategory="teddy-bears">
+          <h3 class="gifts-bucket-title">Teddy Bears</h3>
+          <div class="catalog-grid"></div>
         </div>
-        <div class="product-info">
-          <p class="product-category">Add-ons</p>
-          <h3 class="product-name">Wildflower Love Bundle</h3>
-          <p class="product-price">$95</p>
+        <div class="gifts-bucket" data-subcategory="helium-balloons">
+          <h3 class="gifts-bucket-title">Helium Balloons</h3>
+          <div class="catalog-grid"></div>
         </div>
-        <button class="quick-add" data-id="10" data-name="Wildflower Love Bundle" data-price="95">Add to Cart</button>
+        <div class="gifts-bucket" data-subcategory="chocolate">
+          <h3 class="gifts-bucket-title">Chocolate</h3>
+          <div class="catalog-grid"></div>
+        </div>
       </div>
 
-    </div>
+      <!-- Group 2: Add-ons -->
+      <div class="gifts-group" data-group="addons" hidden>
+        <header class="gifts-group-header">
+          <span class="section-label">Add-ons</span>
+          <h2 class="gifts-group-title"><em>Finishing Touches</em></h2>
+        </header>
+        <div class="gifts-bucket" data-subcategory="baby-breath-letters">
+          <h3 class="gifts-bucket-title">Baby Breath Letters</h3>
+          <div class="catalog-grid"></div>
+        </div>
+        <div class="gifts-bucket" data-subcategory="crowns">
+          <h3 class="gifts-bucket-title">Crowns</h3>
+          <div class="catalog-grid"></div>
+        </div>
+        <div class="gifts-bucket" data-subcategory="butterflies">
+          <h3 class="gifts-bucket-title">Butterflies</h3>
+          <div class="catalog-grid"></div>
+        </div>
+      </div>
 
-    <div class="catalog-cta">
-      <p><em>Looking for something completely custom?</em></p>
-      <a href="https://www.instagram.com/amourafloralsfl/" target="_blank" rel="noopener" class="catalog-cta-link">DM us on Instagram →</a>
+      <!-- Other / uncategorized — only shown if there are products with no subcategory -->
+      <div class="gifts-group" data-group="other" hidden>
+        <header class="gifts-group-header">
+          <span class="section-label">Other</span>
+          <h2 class="gifts-group-title">More <em>Picks</em></h2>
+        </header>
+        <div class="gifts-bucket" data-subcategory="">
+          <div class="catalog-grid"></div>
+        </div>
+      </div>
+
+      <div class="gifts-empty" id="gifts-empty" hidden>
+        <p>No items yet — check back soon.</p>
+      </div>
     </div>
   </section>
 
@@ -188,7 +217,7 @@
   </a>
 
   <script src="assets/js/app.js"></script>
-  <script src="assets/js/catalog.js"></script>
+  <script src="assets/js/gifts.js"></script>
   <script src="assets/js/dynamic-content.js"></script>
 </body>
 </html>

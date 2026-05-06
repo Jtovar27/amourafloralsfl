@@ -9,6 +9,18 @@ function slugify(t) {
 
 const VALID_CATEGORIES = ['bouquets', 'floral-boxes', 'vase-arrangements', 'balloons', 'gifts'];
 
+const VALID_SUBCATEGORIES = new Set([
+  'teddy-bears', 'helium-balloons', 'chocolate',
+  'baby-breath-letters', 'crowns', 'butterflies',
+]);
+
+function sanitizeSubcategory(input) {
+  if (input === null || input === undefined || input === '') return null;
+  if (typeof input !== 'string') return null;
+  const v = input.trim();
+  return VALID_SUBCATEGORIES.has(v) ? v : null;
+}
+
 const ADDON_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const MAX_ADDONS = 20;
 const MAX_ADDON_PRICE_CENTS = 1_000_000;
@@ -130,7 +142,7 @@ module.exports = async function handler(req, res) {
     try { body = await parseBody(req); }
     catch (err) { return res.status(400).json({ error: err.message }); }
 
-    const { name, description, price, category, image_url, featured, active, sort_order } = body;
+    const { name, description, price, category, image_url, featured, active, sort_order, subcategory } = body;
 
     if (!name?.trim()) return res.status(400).json({ error: 'Product name is required' });
     const priceInt = parseInt(price, 10);
@@ -149,6 +161,9 @@ module.exports = async function handler(req, res) {
       return res.status(err.status || 400).json({ error: err.message });
     }
 
+    // subcategory only meaningful when category === 'gifts'
+    const subcatClean = category === 'gifts' ? sanitizeSubcategory(subcategory) : null;
+
     const { data, error } = await supabase
       .from('products')
       .insert({
@@ -164,6 +179,7 @@ module.exports = async function handler(req, res) {
         addons:         cleanAddons,
         gallery_images: cleanGallery,
         variants:       cleanVariants,
+        subcategory:    subcatClean,
       })
       .select()
       .single();
@@ -216,6 +232,27 @@ module.exports = async function handler(req, res) {
     if (updates.variants !== undefined) {
       try { patch.variants = sanitizeVariants(updates.variants); }
       catch (err) { return res.status(err.status || 400).json({ error: err.message }); }
+    }
+    if (updates.subcategory !== undefined) {
+      patch.subcategory = sanitizeSubcategory(updates.subcategory);
+    }
+
+    // subcategory is only meaningful for category === 'gifts'. If the
+    // resolved category (either the new patch value or the existing row's
+    // category) isn't 'gifts', force subcategory = null. We need to read the
+    // current row when the request didn't include category, so we know the
+    // effective category before persisting.
+    let resolvedCategory = patch.category;
+    if (resolvedCategory === undefined) {
+      const { data: existing } = await supabase
+        .from('products').select('category').eq('id', id).maybeSingle();
+      resolvedCategory = existing && existing.category;
+    }
+    if (resolvedCategory !== 'gifts') {
+      // Force-clear if not a gift category, regardless of input
+      if (patch.subcategory !== undefined || patch.category !== undefined) {
+        patch.subcategory = null;
+      }
     }
 
     const { data, error } = await supabase

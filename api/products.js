@@ -52,7 +52,7 @@ module.exports = async function handler(req, res) {
 
     const { data, error } = await supabase
       .from('products')
-      .select('id, name, slug, description, price, category, image_url, featured, sort_order, addons, gallery_images, variants')
+      .select('id, name, slug, description, price, category, image_url, featured, sort_order, addons, gallery_images, variants, subcategory')
       .eq('id', id)
       .eq('active', true)
       .maybeSingle();
@@ -70,7 +70,7 @@ module.exports = async function handler(req, res) {
   // List behavior (existing)
   let query = supabase
     .from('products')
-    .select('id, name, slug, description, price, category, image_url, featured, sort_order, addons, gallery_images, variants')
+    .select('id, name, slug, description, price, category, image_url, featured, sort_order, addons, gallery_images, variants, subcategory')
     .eq('active', true)
     .order('sort_order', { ascending: true });
 

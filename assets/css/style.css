@@ -3059,3 +3059,72 @@ html, body { max-width: 100%; }
   letter-spacing: 0.22em;
 }
 .product-cta:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════
+   GIFTS / ADD-ONS PAGE — sub-sections
+═══════════════════════════════════════════════════════ */
+.gifts-page {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 6vw, 5rem);
+}
+.gifts-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+}
+.gifts-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--mid);
+  font-style: italic;
+}
+
+.gifts-group {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 4vw, 3rem);
+}
+.gifts-group[hidden] { display: none; }
+
+.gifts-group-header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.gifts-group-header .section-label {
+  display: block;
+  padding-left: 0;
+}
+.gifts-group-header .section-label::before { display: none; }
+.gifts-group-title {
+  font-family: var(--ff-serif);
+  font-size: clamp(1.85rem, 4vw, 2.8rem);
+  font-weight: 300;
+  color: var(--mid);
+  letter-spacing: -0.01em;
+  margin-top: 0.4rem;
+}
+
+.gifts-bucket {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.gifts-bucket[hidden] { display: none; }
+.gifts-bucket-title {
+  font-family: var(--ff-serif);
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(46,48,32,0.08);
+}
+.gifts-bucket .catalog-grid {
+  /* Inherit the existing .catalog-grid columns/gap from its base rule */
+}
