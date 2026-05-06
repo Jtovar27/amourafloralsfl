@@ -2717,11 +2717,12 @@ html, body { max-width: 100%; }
   padding-bottom: calc(var(--section-py) + 2.5rem);
 }
 
-/* Hero socials — on phones, center & shrink so they don't bleed into content */
+/* Hero socials — on phones, anchor bottom-left (same vertical spot, just unpinned from center) */
 @media (max-width: 600px) {
   .hero-socials {
-    left: 50%;
-    transform: translateX(-50%);
+    left: 1.25rem;
+    right: auto;
+    transform: none;
     bottom: 1.25rem;
     gap: 0.75rem;
   }
