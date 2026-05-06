@@ -101,15 +101,30 @@ async function loadProducts() {
   }
 }
 
+function isBestsellerFilterOn() {
+  const cb = document.getElementById('filter-bestseller');
+  return !!(cb && cb.checked);
+}
+
 function applyFilter() {
   const q   = document.getElementById('search-input').value.toLowerCase().trim();
   const cat = document.getElementById('filter-category').value;
+  const bestOnly = isBestsellerFilterOn();
 
   filteredProducts = allProducts.filter(p => {
-    const matchQ   = !q || p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q);
-    const matchCat = !cat || p.category === cat;
-    return matchQ && matchCat;
+    const matchQ    = !q || p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q);
+    const matchCat  = !cat || p.category === cat;
+    const matchBest = !bestOnly || p.featured === true;
+    return matchQ && matchCat && matchBest;
   });
+
+  if (bestOnly) {
+    filteredProducts.sort((a, b) => {
+      const sa = Number.isFinite(+a.sort_order) ? +a.sort_order : 0;
+      const sb = Number.isFinite(+b.sort_order) ? +b.sort_order : 0;
+      return sa - sb;
+    });
+  }
 
   renderTable();
 }
@@ -122,7 +137,18 @@ function renderTable() {
     return;
   }
 
-  tbody.innerHTML = filteredProducts.map(p => `
+  const showReorder = isBestsellerFilterOn() && filteredProducts.length >= 2;
+
+  tbody.innerHTML = filteredProducts.map((p, i) => {
+    const reorderButtons = showReorder ? `
+        <button class="btn-icon" title="Move up" data-action="move-up" ${i === 0 ? 'disabled' : ''}>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+        <button class="btn-icon" title="Move down" data-action="move-down" ${i === filteredProducts.length - 1 ? 'disabled' : ''}>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>` : '';
+
+    return `
     <tr data-product-id="${escapeHtml(p.id)}">
       <td data-label="Image">
         ${p.image_url
@@ -138,7 +164,7 @@ function renderTable() {
       <td data-label="Status">${p.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}</td>
       <td data-label="Best Seller">${p.featured ? '<span class="badge badge-blue">Best Seller</span>' : '<span style="color:var(--muted);font-size:.8rem">—</span>'}</td>
       <td data-label="Sort" style="color:var(--muted);font-size:.82rem">${escapeHtml(p.sort_order)}</td>
-      <td data-label="" class="actions">
+      <td data-label="" class="actions">${reorderButtons}
         <button class="btn-icon" title="Edit" data-action="edit">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
@@ -152,7 +178,8 @@ function renderTable() {
         </button>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function handleProductAction(e) {
@@ -165,9 +192,51 @@ function handleProductAction(e) {
   if (!product) return;
 
   switch (btn.dataset.action) {
-    case 'edit':   return openEditModal(id);
-    case 'toggle': return toggleActive(id, product.active);
-    case 'delete': return deleteProduct(id, product.name);
+    case 'edit':      return openEditModal(id);
+    case 'toggle':    return toggleActive(id, product.active);
+    case 'delete':    return deleteProduct(id, product.name);
+    case 'move-up':   return reorderProduct(id, 'up');
+    case 'move-down': return reorderProduct(id, 'down');
+  }
+}
+
+async function reorderProduct(productId, direction) {
+  const idx = filteredProducts.findIndex(p => p.id === productId);
+  if (idx === -1) return;
+
+  const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= filteredProducts.length) return;
+
+  const a = filteredProducts[idx];
+  const b = filteredProducts[swapIdx];
+  const aSort = Number.isFinite(+a.sort_order) ? +a.sort_order : 0;
+  const bSort = Number.isFinite(+b.sort_order) ? +b.sort_order : 0;
+
+  // If sort_orders are equal, nudge them apart so the swap is meaningful
+  let newASort = bSort;
+  let newBSort = aSort;
+  if (aSort === bSort) {
+    if (direction === 'up') { newASort = bSort - 1; newBSort = bSort; }
+    else                     { newASort = bSort + 1; newBSort = bSort; }
+  }
+
+  try {
+    await Promise.all([
+      adminFetch('/api/admin/products', {
+        method: 'PUT',
+        body: JSON.stringify({ id: a.id, sort_order: newASort }),
+      }).then(async r => { if (!r.ok) throw new Error((await r.json()).error || 'Update failed'); }),
+      adminFetch('/api/admin/products', {
+        method: 'PUT',
+        body: JSON.stringify({ id: b.id, sort_order: newBSort }),
+      }).then(async r => { if (!r.ok) throw new Error((await r.json()).error || 'Update failed'); }),
+    ]);
+    showToast('Order updated.', 'success');
+    await loadProducts();
+  } catch (err) {
+    console.error('Reorder failed:', err);
+    showToast('Failed to reorder. Please try again.', 'error');
+    await loadProducts();
   }
 }
 
@@ -254,38 +323,95 @@ function setUploadingState(uploading) {
   }
 }
 
+// Best-effort client-side normalization: re-encode any image to JPEG, capped at
+// 1600px on the longer dimension. Always returns a File. On any failure (HEIC
+// on Chrome desktop, decode error, etc.) we fall back to the original file —
+// the storage bucket accepts broad MIME types so the raw upload may still work.
+async function preprocessImage(file) {
+  const MAX_DIM = 1600;
+  let blobUrl = null;
+  try {
+    blobUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = blobUrl;
+    if (typeof img.decode === 'function') {
+      await img.decode();
+    } else {
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('Image decode failed'));
+      });
+    }
+
+    const w0 = img.naturalWidth  || img.width;
+    const h0 = img.naturalHeight || img.height;
+    if (!w0 || !h0) throw new Error('Empty image');
+
+    const longest = Math.max(w0, h0);
+    const scale   = longest > MAX_DIM ? (MAX_DIM / longest) : 1;
+    const w = Math.max(1, Math.round(w0 * scale));
+    const h = Math.max(1, Math.round(h0 * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width  = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas unsupported');
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('toBlob returned null')), 'image/jpeg', 0.88);
+    });
+
+    return new File([blob], `${Date.now()}.jpg`, { type: 'image/jpeg' });
+  } catch (err) {
+    console.warn('preprocessImage fallback:', err);
+    return file; // best-effort fallback
+  } finally {
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
+  }
+}
+
 async function handleImageFile(file) {
   if (!file) return;
 
   const errEl = document.getElementById('err-image');
   errEl.textContent = '';
 
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    errEl.textContent = 'Use a JPEG, PNG, WebP, or GIF image.';
-    return;
-  }
-  if (file.size > MAX_IMAGE_BYTES) {
-    errEl.textContent = 'Image is over 5 MB. Pick a smaller one.';
+  // Soft size check — accept any image MIME the OS allowed through, including HEIC.
+  if (file.size > 25 * 1024 * 1024) {
+    errEl.textContent = 'Photo is over 25 MB. Try a smaller one.';
     return;
   }
 
   // Show local preview immediately for snappy UX
   const localUrl = URL.createObjectURL(file);
   setImagePreview(localUrl);
-  setUploadOverlay(true, 'Uploading…');
+  setUploadOverlay(true, 'Preparing…');
   setUploadingState(true);
 
   try {
-    const sb = await getSupabaseClient();
-    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const processed = await preprocessImage(file);
 
-    const { error } = await sb.storage.from(MEDIA_BUCKET).upload(safeName, file, {
+    setUploadOverlay(true, 'Uploading…');
+
+    const sb = await getSupabaseClient();
+    const baseName = (processed.name || file.name || 'photo.jpg').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const safeName = `${Date.now()}-${baseName}`;
+    const contentType = processed.type || file.type || 'application/octet-stream';
+
+    const uploadPromise = sb.storage.from(MEDIA_BUCKET).upload(safeName, processed, {
       cacheControl: '3600',
       upsert: false,
-      contentType: file.type,
+      contentType,
+    });
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Upload timed out. Please try a smaller photo.')), 30000);
     });
 
-    if (error) throw error;
+    const result = await Promise.race([uploadPromise, timeoutPromise]);
+    if (result && result.error) throw result.error;
 
     const { data: pub } = sb.storage.from(MEDIA_BUCKET).getPublicUrl(safeName);
     const publicUrl = pub?.publicUrl;
@@ -294,13 +420,18 @@ async function handleImageFile(file) {
     // Swap the blob preview for the real public URL
     setImagePreview(publicUrl);
     URL.revokeObjectURL(localUrl);
-    showToast('Image uploaded.', 'success');
+    showToast('Photo uploaded.', 'success');
   } catch (err) {
     console.error('Image upload failed:', err);
-    errEl.textContent = err.message || 'Upload failed. Try again.';
+    const realMsg = err?.message || err?.error?.message || 'Upload failed.';
+    errEl.textContent = realMsg;
+    if (/Bucket not found|row-level security/i.test(realMsg)) {
+      showToast('Storage bucket setup required. See database/migrations/004_storage_bucket.sql.', 'error');
+    } else {
+      showToast('Photo upload failed.', 'error');
+    }
     setImagePreview('');
-    URL.revokeObjectURL(localUrl);
-    showToast('Image upload failed.', 'error');
+    try { URL.revokeObjectURL(localUrl); } catch (_) { /* noop */ }
   } finally {
     setUploadingState(false);
     setUploadOverlay(false);
@@ -487,10 +618,12 @@ async function deleteProduct(id, name) {
   addonsListEl.addEventListener('change', handleAddonsListInput);
   addonsListEl.addEventListener('click',  handleAddonsListClick);
 
-  const searchInput    = document.getElementById('search-input');
-  const filterCategory = document.getElementById('filter-category');
+  const searchInput      = document.getElementById('search-input');
+  const filterCategory   = document.getElementById('filter-category');
+  const filterBestseller = document.getElementById('filter-bestseller');
   searchInput.addEventListener('input',    debounce(applyFilter, 280));
   filterCategory.addEventListener('change', applyFilter);
+  if (filterBestseller) filterBestseller.addEventListener('change', applyFilter);
 
   // Event delegation: row action buttons (edit / toggle active / delete).
   // Replaces inline onclick="…" — values like product names are user-controlled

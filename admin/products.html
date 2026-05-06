@@ -74,6 +74,10 @@
               <option value="balloons">Balloons</option>
               <option value="gifts">Gifts</option>
             </select>
+            <label class="filter-checkbox" style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--mid);cursor:pointer;">
+              <input type="checkbox" id="filter-bestseller" />
+              <span>Best Sellers Only</span>
+            </label>
           </div>
         </div>
         <div class="table-wrap">
@@ -153,7 +157,7 @@
                   <circle cx="12" cy="13" r="4"/>
                 </svg>
                 <p class="image-upload-cta">Tap to choose photo</p>
-                <p class="image-upload-hint">From your gallery or take a new one<br/>JPEG · PNG · WebP · GIF — up to 5 MB</p>
+                <p class="image-upload-hint">Tap to choose any photo from your gallery<br/>We'll resize and optimize it automatically — up to 25 MB</p>
               </div>
               <div class="image-upload-preview" id="image-upload-preview" hidden>
                 <img id="f-image-preview" alt="Product preview" />
