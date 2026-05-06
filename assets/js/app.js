@@ -207,38 +207,71 @@ function sameAddons(a, b) {
   return ai === bi;
 }
 
-/* Generates a stable composite cart key (id + addon ids) */
-function cartKey(id, addons) {
-  const ids = (addons || []).map(x => x.id).sort().join('|');
-  return ids ? `${id}::${ids}` : String(id);
+/* Generates a stable composite cart key (id + variantId + addon ids).
+   Same product with different variant or different addon set = separate line. */
+function cartKey(item) {
+  const aIds = (item.addons || []).map(a => a.id).sort().join('|');
+  return String(item.id) + '::' + (item.variantId || '') + '::' + aIds;
 }
 
-function addToCart(id, name, price, addons) {
-  const selectedAddons = Array.isArray(addons) ? addons : [];
-  const existing = cart.find(i => i.id === id && sameAddons(i.addons || [], selectedAddons));
+/* Unified cart-add API used by quick-add, the addons modal, the product
+   detail page (via window.amouraAddToCart or the amoura:add-to-cart event),
+   and the legacy addToCart() shim below. */
+function amouraAddToCart(entry) {
+  if (!entry || typeof entry !== 'object') return;
+
+  const qty = Math.max(1, Math.min(20, parseInt(entry.qty, 10) || 1));
+  const addons = Array.isArray(entry.addons) ? entry.addons.slice() : [];
+  const variantId    = entry.variantId    || undefined;
+  const variantLabel = entry.variantLabel || undefined;
+
+  // Build dedup key matching cartKey()
+  const addonIds = addons.map(a => a.id).sort().join('|');
+  const newKey   = String(entry.id) + '::' + (variantId || '') + '::' + addonIds;
+
+  const existing = cart.find(i => cartKey(i) === newKey);
   if (existing) {
-    existing.qty += 1;
+    existing.qty = Math.min(20, existing.qty + qty);
   } else {
-    const entry = { id, name, price: parseFloat(price), qty: 1 };
-    if (selectedAddons.length) entry.addons = selectedAddons;
-    cart.push(entry);
+    const item = {
+      id:    String(entry.id),
+      name:  String(entry.name),
+      price: Number(entry.price) || 0,
+      qty,
+      addons,
+    };
+    if (variantId)    item.variantId    = variantId;
+    if (variantLabel) item.variantLabel = variantLabel;
+    cart.push(item);
   }
   saveCart();
   renderCart();
   updateCartCount();
-  showToast(`${name} added`);
+  showToast(variantLabel ? `${entry.name} (${variantLabel}) added` : `${entry.name} added`);
   openCart();
 }
 
+/* Legacy signature — still used by quick-add for variant-less products
+   and by the addons modal confirm. Routes through amouraAddToCart(). */
+function addToCart(id, name, price, addons) {
+  amouraAddToCart({
+    id,
+    name,
+    price: parseFloat(price),
+    qty: 1,
+    addons: Array.isArray(addons) ? addons : [],
+  });
+}
+
 function removeFromCart(key) {
-  cart = cart.filter(i => cartKey(i.id, i.addons) !== key);
+  cart = cart.filter(i => cartKey(i) !== key);
   saveCart();
   renderCart();
   updateCartCount();
 }
 
 function changeQty(key, delta) {
-  const item = cart.find(i => cartKey(i.id, i.addons) === key);
+  const item = cart.find(i => cartKey(i) === key);
   if (!item) return;
   item.qty += delta;
   if (item.qty <= 0) { removeFromCart(key); return; }
@@ -272,7 +305,7 @@ function renderCart() {
   cart.forEach(item => {
     const el = document.createElement('div');
     el.className = 'cart-item';
-    el.dataset.cartId = cartKey(item.id, item.addons);
+    el.dataset.cartId = cartKey(item);
     // Build via DOM APIs so admin-controlled product names cannot inject HTML
     const thumb = document.createElement('div');
     thumb.style.cssText = 'background:var(--off-white);aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;width:80px;';
@@ -282,6 +315,13 @@ function renderCart() {
     const name = document.createElement('p');
     name.className = 'cart-item-name';
     name.textContent = item.name;
+    if (item.variantLabel) {
+      const variantSpan = document.createElement('span');
+      variantSpan.className = 'cart-item-variant';
+      variantSpan.style.cssText = 'font-style:italic;color:#818263;font-weight:400;';
+      variantSpan.textContent = ` — ${item.variantLabel}`;
+      name.appendChild(variantSpan);
+    }
     const price = document.createElement('p');
     price.className = 'cart-item-price';
     price.textContent = `$${item.price.toFixed(2)}`;
@@ -550,17 +590,40 @@ document.addEventListener('keydown', e => {
 
 /* ── Quick-add delegation ──────────────────────────── */
 // Uses event delegation so dynamically-injected cards (catalog.js) work too.
+// If the product has variants, the user MUST visit the product page to pick
+// one — quick-add becomes a redirect instead of a cart push.
 document.addEventListener('click', e => {
   const btn = e.target.closest('.quick-add');
   if (!btn) return;
   e.stopPropagation();
+  e.preventDefault();
   const { id, name, price } = btn.dataset;
+  const hasVariants = btn.dataset.hasVariants === '1';
+  if (hasVariants) {
+    window.location.href = 'product.html?id=' + encodeURIComponent(String(id));
+    return;
+  }
   const addons = productAddonsMap.get(String(id));
   if (Array.isArray(addons) && addons.length) {
     openAddonsModal({ id, name, price, addons });
   } else {
     addToCart(id, name, price);
   }
+});
+
+/* ── Cross-page event bus / global helpers ─────────── */
+// The product detail page (product.js) uses these to add the user's chosen
+// variant + addons to the cart from a separate script context.
+window.amouraAddToCart = amouraAddToCart;
+window.openCart        = openCart;
+
+document.addEventListener('amoura:add-to-cart', (e) => {
+  if (e && e.detail && typeof e.detail === 'object') {
+    amouraAddToCart(e.detail);
+  }
+});
+document.addEventListener('amoura:open-cart', () => {
+  if (typeof openCart === 'function') openCart();
 });
 
 /* ── Cart item delegation ──────────────────────────── */

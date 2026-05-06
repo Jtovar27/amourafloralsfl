@@ -73,12 +73,16 @@ function renderConfirmed(order) {
     const escHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     itemsEl.innerHTML = order.items.map(i => {
       const addons = Array.isArray(i.selected_addons) ? i.selected_addons : [];
+      const variantSuffix = i.selected_variant && i.selected_variant.label
+        ? ` — ${escHtml(i.selected_variant.label)}`
+        : '';
+      const nameLine = `${escHtml(i.product_name)}${variantSuffix}`;
       const addonsHtml = addons.length
         ? `<div class="order-items-list-addons" style="font-size:.78rem;color:#818263;font-style:italic;margin:-4px 0 8px;padding-left:6px;">${addons.map(a => `+ ${escHtml(a.name)}`).join(' · ')}</div>`
         : '';
       return `
       <div class="order-items-list-item">
-        <span>${i.product_name} ×${i.quantity}</span>
+        <span>${nameLine} ×${i.quantity}</span>
         <span>${formatCents(i.line_total)}</span>
       </div>${addonsHtml}`;
     }).join('');

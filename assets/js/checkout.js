@@ -111,6 +111,9 @@ function renderSummary() {
   if (itemsEl) {
     itemsEl.innerHTML = cart.map(i => {
       const addons = Array.isArray(i.addons) ? i.addons : [];
+      const variantHtml = i.variantLabel
+        ? `<div style="font-size:.78rem;color:#818263;font-style:italic;margin-top:2px;">${escapeHtml(i.variantLabel)}</div>`
+        : '';
       const addonsHtml = addons.length
         ? `<div style="font-size:.78rem;color:#818263;font-style:italic;margin-top:2px;">${
             addons.map(a => `+ ${escapeHtml(a.name)}`).join(' &middot; ')
@@ -121,6 +124,7 @@ function renderSummary() {
         <div class="summary-item-info">
           <span class="summary-item-name">${escapeHtml(i.name)}</span>
           <span class="summary-item-qty">Qty: ${i.qty}</span>
+          ${variantHtml}
           ${addonsHtml}
         </div>
         <span class="summary-item-price">$${lineTotal(i).toFixed(2)}</span>
@@ -292,6 +296,7 @@ form?.addEventListener('submit', async e => {
     items: cart.map(i => ({
       id:     i.id,
       qty:    i.qty,
+      ...(i.variantId ? { variantId: i.variantId } : {}),
       addons: Array.isArray(i.addons) ? i.addons.map(a => ({ id: a.id })) : [],
     })),
     customer: {

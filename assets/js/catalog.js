@@ -42,6 +42,12 @@
     // Stagger delay cycles 1-4
     card.setAttribute('data-delay', String((index % 4) + 1));
 
+    // Wrapper anchor — image + info block are clickable, leading to product page.
+    // Quick-add button stays OUTSIDE the link so its click doesn't trigger nav.
+    var link = document.createElement('a');
+    link.className = 'product-card-link';
+    link.setAttribute('href', 'product.html?id=' + encodeURIComponent(product.id));
+
     // Image wrapper
     var imgWrap = document.createElement('div');
     imgWrap.className = 'product-img-wrap';
@@ -72,16 +78,22 @@
     info.appendChild(nameEl);
     info.appendChild(priceEl);
 
-    // Quick-add button
+    link.appendChild(imgWrap);
+    link.appendChild(info);
+
+    // Quick-add button — sibling of the link, NOT inside it
     var btn = document.createElement('button');
     btn.className = 'quick-add';
     btn.setAttribute('data-id', product.id);
     btn.setAttribute('data-name', product.name);
     btn.setAttribute('data-price', (product.price / 100).toFixed(2));
+    btn.setAttribute(
+      'data-has-variants',
+      product.variants && product.variants.length ? '1' : ''
+    );
     btn.textContent = 'Add to Cart';
 
-    card.appendChild(imgWrap);
-    card.appendChild(info);
+    card.appendChild(link);
     card.appendChild(btn);
 
     return card;

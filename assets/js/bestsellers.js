@@ -46,18 +46,22 @@
     var catLabel  = escapeHtml(category);
     var priceStr  = escapeHtml(formatPrice(product.price));
     var priceAttr = escapeHtml((Number(product.price) / 100).toFixed(2));
+    var hasVariants = Array.isArray(product.variants) && product.variants.length > 0 ? '1' : '';
+    var detailUrl = 'product.html?id=' + id;
 
     return (
       '<article class="bs-card" data-id="' + id + '" role="listitem">' +
-        '<div class="bs-card-img">' +
-          '<img src="' + image + '" alt="' + name + '" loading="lazy" />' +
-        '</div>' +
-        '<div class="bs-card-info">' +
-          '<p class="bs-card-cat">' + catLabel + '</p>' +
-          '<h3 class="bs-card-name">' + name + '</h3>' +
-          '<p class="bs-card-price">' + priceStr + '</p>' +
-        '</div>' +
-        '<button class="bs-card-cta quick-add" data-id="' + id + '" data-name="' + name + '" data-price="' + priceAttr + '">Add to Cart</button>' +
+        '<a href="' + detailUrl + '" class="bs-card-link">' +
+          '<div class="bs-card-img">' +
+            '<img src="' + image + '" alt="' + name + '" loading="lazy" />' +
+          '</div>' +
+          '<div class="bs-card-info">' +
+            '<p class="bs-card-cat">' + catLabel + '</p>' +
+            '<h3 class="bs-card-name">' + name + '</h3>' +
+            '<p class="bs-card-price">' + priceStr + '</p>' +
+          '</div>' +
+        '</a>' +
+        '<button class="bs-card-cta quick-add" data-id="' + id + '" data-name="' + name + '" data-price="' + priceAttr + '" data-has-variants="' + hasVariants + '">Add to Cart</button>' +
       '</article>'
     );
   }

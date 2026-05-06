@@ -96,10 +96,13 @@ async function openOrderModal(orderId) {
       const addonsLine = addons.length
         ? `<div style="margin-top:.25rem;padding-left:.75rem;font-size:.78rem;font-style:italic;color:var(--sage)">${addons.map(a => `+ ${escapeHtml(a.name || '')}`).join(' · ')}</div>`
         : '';
+      const variantSuffix = i.selected_variant && i.selected_variant.label
+        ? ` <span style="color:var(--sage-dark);font-style:italic;font-weight:400;">— ${escapeHtml(i.selected_variant.label)}</span>`
+        : '';
       return `
       <div style="padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
         <div style="display:flex;justify-content:space-between">
-          <span>${escapeHtml(i.product_name)} × ${escapeHtml(i.quantity)}</span>
+          <span>${escapeHtml(i.product_name)}${variantSuffix} × ${escapeHtml(i.quantity)}</span>
           <span>${formatPrice(i.line_total)}</span>
         </div>
         ${addonsLine}
