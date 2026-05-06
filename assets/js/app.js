@@ -88,7 +88,7 @@ mobileMenu.innerHTML = `
         <a href="bouquets.html">Bouquets</a>
         <a href="floral-boxes.html">Floral Boxes</a>
         <a href="vase-arrangements.html">Vase Arrangements</a>
-        <a href="balloons.html">Balloons</a>
+        <a href="balloons.html">Balloon Bouquets</a>
         <a href="gifts.html">Gifts / Add-ons</a>
       </div>
     </div>

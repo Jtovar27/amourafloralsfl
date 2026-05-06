@@ -19,7 +19,7 @@
     'bouquets':          'Bouquets',
     'floral-boxes':      'Floral Boxes',
     'vase-arrangements': 'Vase Arrangements',
-    'balloons':          'Balloons',
+    'balloons':          'Balloon Bouquets',
     'gifts':             'Gifts / Add-ons'
   };
 
