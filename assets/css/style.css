@@ -2528,6 +2528,9 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
 }
+/* Force the italic <em>Sellers</em> to inherit the same ink color as the
+   surrounding text — no peach/sage tint like the hero title's em uses. */
+.bestsellers-header .section-title em { color: inherit; }
 .bestsellers-subtitle {
   font-family: var(--ff-sans);
   font-size: 0.95rem;
