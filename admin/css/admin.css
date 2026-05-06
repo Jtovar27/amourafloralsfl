@@ -663,6 +663,11 @@ textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
   letter-spacing: .12em;
   text-transform: uppercase;
 }
+/* HTML [hidden] returns display:none, but the rules above set display:flex
+   on the same element which silently wins. These selectors restore the
+   hide behavior so the spinner overlay actually disappears after upload. */
+.image-upload-overlay[hidden],
+.image-upload-preview[hidden] { display: none !important; }
 .image-upload-overlay .spinner {
   width: 28px; height: 28px;
   border-color: rgba(255,255,255,.25);
