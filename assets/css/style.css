@@ -2502,7 +2502,7 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 ═══════════════════════════════════════════════════════ */
 .bestsellers {
   padding: clamp(3rem, 6vw, 5rem) 0 clamp(2.5rem, 5vw, 4rem);
-  background: var(--cream);
+  background: var(--off-white);
   position: relative;
 }
 .bestsellers-inner {
@@ -2523,13 +2523,13 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 .bestsellers-header .section-title {
   font-family: var(--ff-serif);
   font-size: clamp(2rem, 4vw, 3.2rem);
-  font-weight: 400;
-  color: var(--ink);
+  font-weight: 300;
+  color: var(--mid);
   margin-bottom: 1rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
-/* Force the italic <em>Sellers</em> to inherit the same ink color as the
-   surrounding text — no peach/sage tint like the hero title's em uses. */
+/* Italic <em>Sellers</em> inherits the same color as 'Best' — matches the
+   newsletter heading typography ('Be the first to know...'). */
 .bestsellers-header .section-title em { color: inherit; }
 .bestsellers-subtitle {
   font-family: var(--ff-sans);
