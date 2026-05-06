@@ -2553,13 +2553,14 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 .bs-track::-webkit-scrollbar { display: none; }
 
 .bs-card {
-  flex: 0 0 clamp(170px, 21vw, 230px);
+  flex: 0 0 clamp(140px, 17vw, 190px);
   scroll-snap-align: start;
   background: var(--warm-white);
   border: 1px solid rgba(46, 48, 32, 0.06);
   display: flex;
   flex-direction: column;
   text-align: left;
+  min-width: 0;
   transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
@@ -2583,10 +2584,11 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 .bs-card:hover .bs-card-img img { transform: scale(1.05); }
 
 .bs-card-info {
-  padding: 0.85rem 1rem 0.4rem;
+  padding: 0.7rem 0.75rem 0.35rem;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 0;
 }
 .bs-card-cat {
   font-family: var(--ff-sans);
@@ -2598,28 +2600,33 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 }
 .bs-card-name {
   font-family: var(--ff-serif);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 400;
   color: var(--ink);
   line-height: 1.25;
   letter-spacing: -0.01em;
   margin: 0.1rem 0 0.2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .bs-card-price {
   font-family: var(--ff-sans);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--sage-dark);
   letter-spacing: 0.02em;
 }
 
 .bs-card-cta {
-  margin: .65rem 1rem 1rem;
-  padding: 0.55rem 0.85rem;
+  display: block;
+  width: calc(100% - 1.5rem);
+  margin: .55rem 0.75rem 0.85rem;
+  padding: 0.5rem 0.4rem;
   font-family: var(--ff-sans);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--sage);
   background: transparent;
@@ -2627,6 +2634,9 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   cursor: pointer;
   transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
   border-radius: 0;
+  white-space: nowrap;
+  text-align: center;
+  box-sizing: border-box;
 }
 .bs-card-cta:hover { background: var(--sage); color: #fff; }
 
@@ -2656,14 +2666,14 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
 @media (max-width: 720px) {
   .bs-arrow { display: none !important; }   /* on phones, swipe is enough */
   .bs-track { padding-bottom: 1rem; }
-  .bs-card { flex: 0 0 64vw; }
-  .bs-card-name { font-size: 0.92rem; }
-  .bs-card-price { font-size: 0.82rem; }
-  .bs-card-cta { padding: 0.5rem 0.7rem; font-size: 0.6rem; margin: 0.5rem 0.85rem 0.85rem; }
+  .bs-card { flex: 0 0 50vw; }
+  .bs-card-name { font-size: 0.85rem; }
+  .bs-card-price { font-size: 0.78rem; }
+  .bs-card-cta { padding: 0.45rem 0.4rem; font-size: 0.56rem; margin: 0.45rem 0.6rem 0.7rem; width: calc(100% - 1.2rem); }
 }
 
 @media (max-width: 420px) {
-  .bs-card { flex: 0 0 70vw; }
+  .bs-card { flex: 0 0 56vw; }
 }
 
 /* ═══════════════════════════════════════════════════════
