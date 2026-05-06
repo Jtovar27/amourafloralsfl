@@ -4,7 +4,11 @@ const { getSupabase } = require('./lib/supabase');
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+  // No CDN cache: admin toggles (Best Seller, active, price) must show up
+  // immediately on the storefront — caching here previously made it look like
+  // only the first 1–2 best sellers were "allowed" because the home kept
+  // serving the stale list for up to 5 minutes.
+  res.setHeader('Cache-Control', 'no-store, must-revalidate');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });

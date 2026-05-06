@@ -875,6 +875,8 @@ p  { font-size: clamp(1rem, 1.2vw, 1.05rem); color: var(--mid); line-height: 1.8
   .hero-content {
     padding-top: clamp(200px, 22vh, 250px);
   }
+  /* Pull the CTA closer to the subtitle on desktop only */
+  .hero-sub { margin-bottom: 1.5rem; }
 }
 
 /* Hero split line decorations */
