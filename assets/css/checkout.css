@@ -9,8 +9,8 @@
 
 /* ── Page layout ──────────────────────────────────────── */
 .checkout-main {
-  padding-top: clamp(80px, 9vw, 112px);
-  padding-bottom: clamp(48px, 6vw, 80px);
+  padding-top: clamp(100px, 12vw, 140px);
+  padding-bottom: clamp(60px, 8vw, 120px);
   min-height: 80vh;
   background: var(--cream, #FAF8F5);
   overflow-x: clip;
@@ -18,7 +18,7 @@
 
 .checkout-page-header {
   text-align: center;
-  padding: 0 24px clamp(24px, 4vw, 40px);
+  padding: 0 24px clamp(32px, 5vw, 56px);
 }
 
 .checkout-page-header .section-label {
@@ -46,11 +46,11 @@
 /* ── Two-column layout ────────────────────────────────── */
 .checkout-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: clamp(24px, 4vw, 56px);
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: clamp(32px, 5vw, 72px);
   max-width: 1180px;
   margin: 0 auto;
-  padding: 0 clamp(16px, 4vw, 32px);
+  padding: 0 clamp(20px, 5vw, 48px);
   align-items: start;
 }
 
@@ -113,7 +113,7 @@
 
 /* ── Form fields ──────────────────────────────────────── */
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
 .form-group label {
@@ -124,7 +124,7 @@
   letter-spacing: 1.8px;
   text-transform: uppercase;
   color: var(--sage);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .form-group input,
@@ -144,7 +144,7 @@
   appearance: none;
   -webkit-appearance: none;
   border-radius: 0;
-  min-height: 48px;
+  min-height: 44px;
 }
 
 @media (min-width: 768px) {
@@ -905,154 +905,3 @@
     padding: 110px 16px 100px;
   }
 }
-
-/* ═══════════════════════════════════════════════════════════════════
-   ▶ CHECKOUT LAYOUT PASS — sanhousefit-style rhythm
-   8pt scale tokens come from style.css :root
-═══════════════════════════════════════════════════════════════════ */
-
-/* Page-header tightened so form is visible above the fold sooner */
-.checkout-page-header h1 {
-  font-size: clamp(2rem, 4.5vw, 3.2rem);
-  margin-bottom: var(--s-2);
-}
-.checkout-page-header .section-label { margin-bottom: var(--s-2); }
-
-/* Form column — calmer padding rhythm */
-.checkout-form-col {
-  padding: clamp(20px, 3vw, 40px);
-  border-radius: 4px;
-}
-
-/* Form sections separated by 48px (mobile) / 64px (desktop) */
-.form-section { margin-bottom: var(--s-12); }
-@media (min-width: 768px) { .form-section { margin-bottom: var(--s-16); } }
-
-.form-section-title {
-  margin-bottom: var(--s-5);
-  padding-bottom: var(--s-3);
-}
-
-/* Form groups — 24px between groups, 8px label→input */
-.form-group { margin-bottom: var(--s-6); }
-.form-group label { margin-bottom: var(--s-2); }
-
-.form-grid-2 { gap: 0 var(--s-6); }
-.form-grid-3 { gap: 0 var(--s-5); }
-
-/* Date input — entire field visible & tappable */
-.form-group input[type="date"] {
-  color: var(--dark);
-  background-position: right 0 center;
-  padding-right: 28px;
-}
-.form-group input[type="date"]::-webkit-date-and-time-value {
-  text-align: left;
-  color: var(--dark);
-}
-
-/* Phone field — formatted (X) X-X visible without clipping */
-.form-group input[type="tel"] {
-  letter-spacing: 0.5px;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Inline error directly under field, red underline + italic message */
-.form-error {
-  margin-top: var(--s-2);
-  font-size: 12px;
-}
-.form-group input.has-error + .form-error,
-.form-group select.has-error + .form-error,
-.form-group textarea.has-error + .form-error,
-.form-error.visible {
-  display: block;
-}
-
-/* Radio cards — 8pt rhythm */
-.delivery-radio-group { gap: var(--s-3); margin-bottom: var(--s-6); }
-.radio-card { padding: var(--s-4) var(--s-4); min-height: 88px; gap: var(--s-3); }
-
-/* Submit area — 96px bottom padding so WhatsApp can't cover it */
-.checkout-actions { padding-top: var(--s-3); padding-bottom: var(--s-24); }
-@media (min-width: 861px) { .checkout-actions { padding-bottom: var(--s-3); } }
-
-.checkout-submit {
-  min-height: 56px;
-  padding: var(--s-4) var(--s-6);
-  font-size: 13px;
-  border-radius: 3px;
-}
-.checkout-submit:hover:not(:disabled) {
-  background: var(--peach);
-  color: var(--ink);
-  box-shadow: 0 4px 14px rgba(239, 215, 207, 0.45);
-}
-
-.checkout-secure-note { margin-top: var(--s-4); }
-
-/* ── Order summary on mobile — visible totals without scroll ── */
-.checkout-summary-col { top: 96px; }
-
-@media (max-width: 860px) {
-  .checkout-layout { gap: var(--s-6); padding: 0 clamp(14px, 4vw, 20px); }
-
-  .order-summary { padding: var(--s-4) var(--s-4); }
-
-  /* keep summary visible without push */
-  .summary-items {
-    max-height: 220px;
-    overflow-y: auto;
-    margin-bottom: var(--s-3);
-    -webkit-overflow-scrolling: touch;
-  }
-  .summary-item { padding: var(--s-2) 0; gap: var(--s-3); }
-  .summary-divider { margin: var(--s-3) 0; }
-  .summary-rows { gap: var(--s-2); }
-}
-
-/* ── Two-column layout: form wider than summary on desktop ── */
-@media (min-width: 861px) {
-  .checkout-layout {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  }
-}
-
-/* ── Mobile padding — phones (320px / 375px) ───────────── */
-@media (max-width: 480px) {
-  .checkout-main { padding-top: 80px; padding-bottom: var(--s-12); }
-  .checkout-page-header { padding: 0 var(--s-4) var(--s-6); }
-  .checkout-page-header h1 { font-size: 24px; }
-  .checkout-form-col { padding: var(--s-4) var(--s-4); border-radius: 3px; }
-  .form-section { margin-bottom: var(--s-8); }
-  .form-section-title { margin-bottom: var(--s-4); }
-  .form-group { margin-bottom: var(--s-5); }
-  .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
-  .form-grid-2 { gap: 0; }
-  .form-grid-3 { gap: 0; }
-}
-
-/* ── Success / cancel — center column 480px max ────────── */
-.success-main, .cancel-main {
-  padding: var(--s-24) var(--gutter, 16px) var(--s-16);
-  min-height: 60vh;
-}
-.success-heading { font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: var(--s-3); }
-.success-sub { margin-bottom: var(--s-8); max-width: 480px; }
-.order-card { max-width: 480px; padding: var(--s-6); margin-bottom: var(--s-8); }
-.success-actions { gap: var(--s-3); }
-
-@media (max-width: 480px) {
-  .success-main, .cancel-main { padding: var(--s-20) var(--s-4) var(--s-16); }
-}
-
-/* ── Disable custom cursor on checkout (usability) ───── */
-.checkout-main *,
-.success-main *,
-.cancel-main * { cursor: auto !important; }
-.checkout-main #cursor-dot,
-.checkout-main #cursor-ring,
-.success-main #cursor-dot,
-.success-main #cursor-ring,
-.cancel-main #cursor-dot,
-.cancel-main #cursor-ring { display: none !important; }
